@@ -4,9 +4,9 @@ import { BrokerDetailPage } from "@/components/BrokerDetailPage";
 import { getBrokerData } from "@/data/mockData";
 import { notFound } from "next/navigation";
 
-export default async function BrokerDetail({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ExchangeDetail({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
-    const data = getBrokerData("forex", slug);
+    const data = getBrokerData("crypto", slug);
     
     if (!data) {
         notFound();
@@ -18,11 +18,12 @@ export default async function BrokerDetail({ params }: { params: Promise<{ slug:
             <main className="flex-grow">
                 <BrokerDetailPage
                     data={data}
-                    type="forex"
-                    backgroundImage="/forex.jpg"
+                    type="crypto"
+                    backgroundImage="/crypto.jpg"
                 />
             </main>
             <Footer />
         </div>
     );
 }
+

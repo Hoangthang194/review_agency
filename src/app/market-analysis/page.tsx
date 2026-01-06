@@ -68,7 +68,7 @@ export default function MarketAnalysis() {
                         { label: "Home", href: "/" },
                         { label: "Market Analysis" },
                     ]}
-                    backgroundImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAG6-sjPEcLmgaxu8ezZ5eJtQVNzyweQdggD12oqacJEg6xS-Kr79BM31kk6qgCy-jCGW9eraYuA_UaNEPXflAJlDz-hquN6DGutwVtG450VyN6ekzrid4Bv08sUmCGjEm7oSdzykcK-BEVLIXuoOB-P6Eu1_wBP7T8lcYgRE65bNN8Fo514Vr0Ri0LH9oHH3RsU3UA8Lf9bar9_hdaKIbiCxtAy1DhEjHzhEzXNSaztoMn5uNzNk_2FxuSJhuR-ITzM-kJY5_fG9U"
+                    backgroundImage="/market.jpg"
                 />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -78,64 +78,58 @@ export default function MarketAnalysis() {
                                 <p className="text-sm text-muted-light dark:text-muted-dark mb-4 sm:mb-0">
                                     Showing 1 - 4 of 4 results
                                 </p>
-                                <div className="flex space-x-2">
-                                    <button className="p-2 text-primary bg-blue-50 dark:bg-blue-900/20 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40 transition">
-                                        <span className="material-icons text-xl">grid_view</span>
-                                    </button>
-                                    <button className="p-2 text-muted-light dark:text-muted-dark hover:text-primary dark:hover:text-white transition">
-                                        <span className="material-icons text-xl">view_list</span>
-                                    </button>
-                                </div>
                             </div>
 
-                            {articles.map((article, index) => (
-                                <article
-                                    key={index}
-                                    className="bg-card-light dark:bg-card-dark rounded-lg shadow-card hover-lift p-6 mb-8 border border-gray-100 dark:border-gray-700 hover:shadow-card-hover transition-smooth"
-                                >
-                                    <div className="mb-6 rounded-lg overflow-hidden h-64 md:h-80 relative group">
-                                        <Image
-                                            src={article.image}
-                                            alt={article.title}
-                                            fill
-                                            className="object-cover transform group-hover:scale-105 transition-transform duration-500"
-                                        />
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-light dark:text-muted-dark mb-3">
-                                        <div className="flex items-center">
-                                            <span className="material-icons text-sm mr-1">person</span>
-                                            <span>by tradery</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <span className="material-icons text-sm mr-1">
-                                                schedule
-                                            </span>
-                                            <span>{article.date}</span>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <span className="material-icons text-sm mr-1">label</span>
-                                            <span className="text-primary">{article.category}</span>
-                                        </div>
-                                    </div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-primary transition-colors">
-                                        <Link href={`/market-analysis/${article.slug}`}>
-                                            {article.title}
-                                        </Link>
-                                    </h2>
-                                    <p className="text-muted-light dark:text-muted-dark mb-6 leading-relaxed">
-                                        {article.excerpt}
-                                    </p>
-                                    <Link
-                                        href={`/market-analysis/${article.slug}`}
-                                        className="inline-flex items-center px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded shadow-sm transition-colors group"
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {articles.map((article, index) => (
+                                    <article
+                                        key={index}
+                                        className="bg-card-light dark:bg-card-dark rounded-lg shadow-sm hover:shadow-md p-4 md:p-6 border border-gray-100 dark:border-gray-700 transition-smooth flex flex-col"
                                     >
-                                        Read More
-                                        <span className="material-icons text-sm ml-2 group-hover:translate-x-1 transition-transform">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                </article>
-                            ))}
+                                        <div className="mb-4 rounded-lg overflow-hidden h-48 md:h-56 relative group">
+                                            <Image
+                                                src={article.image}
+                                                alt={article.title}
+                                                fill
+                                                className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                            />
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-light dark:text-muted-dark mb-3">
+                                            <div className="flex items-center">
+                                                <span className="material-icons-outlined text-sm mr-1">person</span>
+                                                <span>by tradery</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="material-icons-outlined text-sm mr-1">
+                                                    schedule
+                                                </span>
+                                                <span>{article.date}</span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <span className="material-icons-outlined text-sm mr-1">label</span>
+                                                <span className="text-primary">{article.category}</span>
+                                            </div>
+                                        </div>
+                                        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-3 hover:text-primary transition-colors line-clamp-2">
+                                            <Link href={`/market-analysis/${article.slug}`}>
+                                                {article.title}
+                                            </Link>
+                                        </h2>
+                                        <p className="text-muted-light dark:text-muted-dark mb-4 leading-relaxed line-clamp-3 flex-grow">
+                                            {article.excerpt}
+                                        </p>
+                                        <Link
+                                            href={`/market-analysis/${article.slug}`}
+                                            className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 group mt-auto transform hover:scale-105"
+                                        >
+                                            <span>Read More</span>
+                                            <span className="material-icons-outlined text-base ml-2 group-hover:translate-x-1 transition-transform duration-300">
+                                                arrow_forward
+                                            </span>
+                                        </Link>
+                                    </article>
+                                ))}
+                            </div>
                         </div>
                         <MarketSidebar />
                     </div>

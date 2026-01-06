@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export function AboutUs() {
     return (
@@ -87,12 +88,15 @@ export function AboutUs() {
                                 </div>
                             </div>
                         </div>
-                        <button className="px-8 py-3 bg-primary text-white rounded-full font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 inline-flex items-center gap-2">
-                            Read More
+                        <Link
+                            href="/contact"
+                            className="px-8 py-3 bg-primary text-white rounded-full font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-500/30 inline-flex items-center gap-2"
+                        >
+                            Contact Us
                             <span className="material-icons-outlined text-sm">
                                 north_east
                             </span>
-                        </button>
+                        </Link>
                     </div>
                     <div className="order-1 lg:order-2 relative">
                         <div className="relative rounded-full bg-gradient-to-tr from-blue-100 to-orange-100 dark:from-blue-900/20 dark:to-orange-900/20 p-8">

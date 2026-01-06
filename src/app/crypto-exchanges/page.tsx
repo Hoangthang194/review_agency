@@ -15,11 +15,12 @@ export default function CryptoExchanges() {
                         { label: "Home", href: "/" },
                         { label: "Crypto Exchanges" },
                     ]}
+                    backgroundImage="/crypto.jpg"
                 />
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                     <div className="flex flex-col lg:flex-row gap-8">
                         <aside className="w-full lg:w-1/4 flex-shrink-0">
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-card p-6 sticky top-24 border border-border-light dark:border-border-dark">
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6 sticky top-24">
                                 <h2 className="text-xl font-bold mb-6 text-text-light dark:text-text-dark">
                                     Filter
                                 </h2>
@@ -107,7 +108,7 @@ export default function CryptoExchanges() {
                         </aside>
                         <div className="w-full lg:w-3/4 space-y-6">
                             {/* Binance Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-card hover-lift p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-card-hover transition-smooth">
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
                                 <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
                                     <div className="w-full h-32 bg-black rounded-lg flex items-center justify-center overflow-hidden">
                                         <Image
@@ -210,7 +211,7 @@ export default function CryptoExchanges() {
                             </div>
 
                             {/* Bitstamp Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-card hover-lift p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-card-hover transition-smooth">
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
                                 <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
                                     <div className="w-full h-32 bg-[#064234] rounded-lg flex items-center justify-center overflow-hidden">
                                         <span className="text-white font-bold text-2xl tracking-tighter">
@@ -309,7 +310,7 @@ export default function CryptoExchanges() {
                             </div>
 
                             {/* Coinbase Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-card hover-lift p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-card-hover transition-smooth">
+                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
                                 <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
                                     <div className="w-full h-32 bg-[#0052FF] rounded-lg flex items-center justify-center overflow-hidden">
                                         <span className="text-white font-bold text-2xl">

@@ -16,7 +16,7 @@ export default function Contact() {
                         { label: "Tradexy", href: "/" },
                         { label: "Contact Us" },
                     ]}
-                    backgroundImage="https://lh3.googleusercontent.com/aida-public/AB6AXuAYEIgIZQNBior-I8IZF1hVsW694xR6dpNt_KAZ1N5E_T8B9T8pyPKldR7P79fMyVM5JR1pK8Irzuxo_Nt8YNGhjx6UUwemIurpBOpin2sFALWkaLy9jB1IvESzMl48YZHykAhpon28ceYhJmmXvCcieX70d-LTebrKnRUEpvC5DxV8UB0FfPcPzhG1TIpyIenAGV5s2h8qxIdYefblu8IxwIL-GGvkc6YYQT-1uA5fONKwzGOjrM3zhodXwKyt_DJa74RZV9cqZKQ"
+                    backgroundImage="/contact.jpg"
                 />
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-8 relative z-20">

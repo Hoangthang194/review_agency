@@ -8,13 +8,18 @@ export function Navbar() {
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
     const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+    const [isMarketAnalysisOpen, setIsMarketAnalysisOpen] = useState(false);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const marketAnalysisTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         setMounted(true);
         return () => {
             if (timeoutRef.current) {
                 clearTimeout(timeoutRef.current);
+            }
+            if (marketAnalysisTimeoutRef.current) {
+                clearTimeout(marketAnalysisTimeoutRef.current);
             }
         };
     }, []);
@@ -33,6 +38,19 @@ export function Navbar() {
     const handleMouseLeave = () => {
         timeoutRef.current = setTimeout(() => {
             setIsReviewsOpen(false);
+        }, 200); // Delay 200ms trước khi đóng
+    };
+
+    const handleMarketAnalysisEnter = () => {
+        if (marketAnalysisTimeoutRef.current) {
+            clearTimeout(marketAnalysisTimeoutRef.current);
+        }
+        setIsMarketAnalysisOpen(true);
+    };
+
+    const handleMarketAnalysisLeave = () => {
+        marketAnalysisTimeoutRef.current = setTimeout(() => {
+            setIsMarketAnalysisOpen(false);
         }, 200); // Delay 200ms trước khi đóng
     };
 
@@ -99,15 +117,56 @@ export function Navbar() {
                                 </Link>
                             </div>
                         </div>
-                        <Link
-                            href="/market-analysis"
-                            className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition flex items-center gap-1"
+                        <div
+                            className="relative group"
+                            onMouseEnter={handleMarketAnalysisEnter}
+                            onMouseLeave={handleMarketAnalysisLeave}
                         >
-                            Market Analysis
-                            <span className="material-icons-outlined text-base">
-                                expand_more
-                            </span>
-                        </Link>
+                            <button
+                                className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition flex items-center gap-1"
+                            >
+                                Market Analysis
+                                <span
+                                    className={`material-icons-outlined text-base transition-transform duration-300 ${
+                                        isMarketAnalysisOpen ? "rotate-180" : ""
+                                    }`}
+                                >
+                                    expand_more
+                                </span>
+                            </button>
+                            <div
+                                className={`absolute top-full left-0 mt-2 w-56 bg-card-light dark:bg-card-dark rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50 transition-all duration-300 ease-out ${
+                                    isMarketAnalysisOpen
+                                        ? "opacity-100 translate-y-0 pointer-events-auto"
+                                        : "opacity-0 -translate-y-2 pointer-events-none"
+                                }`}
+                            >
+                                <Link
+                                    href="/market-analysis"
+                                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
+                                >
+                                    All Analysis
+                                </Link>
+                                <Link
+                                    href="/market-analysis?category=forex"
+                                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
+                                >
+                                    Forex Analysis
+                                </Link>
+                                <Link
+                                    href="/market-analysis?category=crypto"
+                                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
+                                >
+                                    Crypto Analysis
+                                </Link>
+                                <Link
+                                    href="/market-analysis?category=stocks"
+                                    className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
+                                >
+                                    Stock Analysis
+                                </Link>
+                            </div>
+                        </div>
                         <Link
                             href="/contact"
                             className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition"
