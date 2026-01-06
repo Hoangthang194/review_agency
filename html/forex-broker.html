@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Review Overview Page - Tradexy</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB", // Blue similar to the screenshot
+                        secondary: "#1E3A8A", // Darker blue
+                        "background-light": "#F3F4F6", // Light gray background
+                        "background-dark": "#111827", // Dark gray background
+                        "card-light": "#FFFFFF",
+                        "card-dark": "#1F2937",
+                        "text-light": "#1F2937",
+                        "text-dark": "#F9FAFB",
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-200">
+    <header class="bg-black text-white dark:bg-black w-full sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center cursor-pointer">
+                    <div class="w-8 h-8 mr-2 relative">
+                        <svg class="w-8 h-8 text-primary" fill="none" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"></path>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"></path>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                        <div
+                            class="absolute inset-0 bg-gradient-to-tr from-green-400 to-blue-500 opacity-50 blur-sm rounded-full">
+                        </div>
+                    </div>
+                    <span class="font-bold text-xl tracking-wider">TRADEXY</span>
+                </div>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Home <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Brokerage Reviews <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Market Analysis <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Services <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Education <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                    <a class="hover:text-primary transition-colors flex items-center" href="#">Pages <span
+                            class="material-icons-outlined text-base ml-1">expand_more</span></a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <button class="text-white hover:text-gray-300">
+                        <span class="material-icons-outlined">search</span>
+                    </button>
+                    <div class="relative group">
+                        <button
+                            class="bg-white text-black px-3 py-1.5 rounded text-sm flex items-center hover:bg-gray-100 transition">
+                            English <span class="material-icons-outlined text-sm ml-1">expand_more</span>
+                        </button>
+                    </div>
+                    <button
+                        class="bg-primary hover:bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-medium transition-all shadow-lg shadow-blue-500/30 flex items-center">
+                        Contact Us <span class="material-icons-outlined text-sm ml-1">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <aside class="w-full lg:w-1/4 flex-shrink-0">
+                <div
+                    class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6 sticky top-24 border border-border-light dark:border-border-dark">
+                    <h2 class="text-xl font-bold mb-6 text-text-light dark:text-text-dark">Filter</h2>
+                    <div class="relative mb-8">
+                        <input
+                            class="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none text-text-light dark:text-text-dark placeholder-gray-400"
+                            placeholder="Search brokers..." type="text" />
+                    </div>
+                    <div class="mb-8 border-b border-gray-100 dark:border-gray-700 pb-6">
+                        <h3 class="font-semibold mb-4 text-text-light dark:text-text-dark">Types of Brokers</h3>
+                        <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Bond Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">1</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Commodity
+                                        Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">1</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Cryptocurrency</span>
+                                </div>
+                                <span class="text-xs text-gray-400">4</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Forex Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">2</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Futures Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">0</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Index Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">2</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Options Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">0</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-checkbox h-4 w-4 text-primary rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        type="checkbox" />
+                                    <span class="ml-3 group-hover:text-primary transition-colors">Stock Trading</span>
+                                </div>
+                                <span class="text-xs text-gray-400">2</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-8">
+                        <h3 class="font-semibold mb-4 text-text-light dark:text-text-dark">Star Rating</h3>
+                        <div class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-radio h-4 w-4 text-primary border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        name="rating" type="radio" />
+                                    <div class="ml-3 flex text-orange-400 text-xs space-x-0.5">
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">4</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-radio h-4 w-4 text-primary border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        name="rating" type="radio" />
+                                    <div class="ml-3 flex text-orange-400 text-xs space-x-0.5">
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">2</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-radio h-4 w-4 text-primary border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        name="rating" type="radio" />
+                                    <div class="ml-3 flex text-orange-400 text-xs space-x-0.5">
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">0</span>
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center">
+                                    <input
+                                        class="form-radio h-4 w-4 text-primary border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:ring-primary"
+                                        name="rating" type="radio" />
+                                    <div class="ml-3 flex text-orange-400 text-xs space-x-0.5">
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span class="material-icons-outlined text-base">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                        <span
+                                            class="material-icons-outlined text-gray-300 dark:text-gray-600">star</span>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-gray-400">0</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button
+                        class="w-full py-2.5 px-4 rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-colors text-sm font-medium">
+                        Reset Filters
+                    </button>
+                </div>
+            </aside>
+            <div class="w-full lg:w-3/4 space-y-6">
+                <div
+                    class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-md transition-shadow">
+                    <div class="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
+                        <div class="w-full h-32 bg-black rounded-lg flex items-center justify-center overflow-hidden">
+                            <img alt="Binance Logo" class="h-12 object-contain filter invert opacity-90"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7Yts5TU2eZMfPcCJaorDJ7a0L2f9AWHfDVkU1ArIfgilQ8wAO4YU2ExTcfI_84-aP4tzfqhqUngra5Te7EuKF7HBV6VqILbpXKUjjA9QGEqXGWqCpnz1nft0YKmV8gEC-kDS6SJrofw5PoVJrn4-AJjfWm_junml8oYcgV_XwA3ZTq9lhfrRySl5B4ex8ipx1UI957p-APWD_nkc_wOXtrE_i33E2jmojqgoOiRxjW3T-zEm-MvQqonT61oyL3-DLrRFCyPoVDhk" />
+                        </div>
+                        <div
+                            class="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div
+                                class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
+                                5</div>
+                            <div class="flex flex-col items-end">
+                                <div class="flex text-orange-400 text-sm">
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Customer
+                                    Reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-2">Binance</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
+                                25K+ Reviews Binance There are many variations of passages of Lorem Ipsum available, but
+                                the majority have suffered alteration in...
+                            </p>
+                            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Certified pre-approval Process
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Online Application Available 24/7
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Find a Quote Easily
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    100% Online Refinance
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
+                        <a class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
+                            href="#">
+                            Visit Site <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <a class="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
+                            href="#">
+                            Read More <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <p class="text-[10px] text-gray-400 text-center mt-1">* Terms &amp; Conditions Apply</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-md transition-shadow">
+                    <div class="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
+                        <div
+                            class="w-full h-32 bg-[#064234] rounded-lg flex items-center justify-center overflow-hidden">
+                            <span class="text-white font-bold text-2xl tracking-tighter">Bitstamp</span>
+                        </div>
+                        <div
+                            class="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div
+                                class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
+                                4</div>
+                            <div class="flex flex-col items-end">
+                                <div class="flex text-orange-400 text-sm">
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star_half</span>
+                                    <span
+                                        class="material-icons-outlined text-lg text-gray-300 dark:text-gray-600">star_outline</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Customer
+                                    Reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-2">Bitstamp</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
+                                25K+ Reviews bitstamp There are many variations of passages of Lorem Ipsum available,
+                                but the majority have suffered alteration in...
+                            </p>
+                            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Certified pre-approval Process
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Find a Quote Easily
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Online Application Available 24/7
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    100% Online Refinance
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
+                        <a class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
+                            href="#">
+                            Visit Site <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <a class="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
+                            href="#">
+                            Read More <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <p class="text-[10px] text-gray-400 text-center mt-1">* Terms &amp; Conditions Apply</p>
+                    </div>
+                </div>
+                <div
+                    class="bg-card-light dark:bg-card-dark rounded-xl shadow-sm p-6 lg:p-8 flex flex-col md:flex-row gap-8 border border-border-light dark:border-border-dark hover:shadow-md transition-shadow">
+                    <div class="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
+                        <div
+                            class="w-full h-32 bg-[#001D5F] rounded-lg flex items-center justify-center overflow-hidden">
+                            <span class="text-white font-bold text-5xl font-mono">R</span>
+                        </div>
+                        <div
+                            class="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                            <div
+                                class="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
+                                5</div>
+                            <div class="flex flex-col items-end">
+                                <div class="flex text-orange-400 text-sm">
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                    <span class="material-icons-outlined text-lg">star</span>
+                                </div>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">Customer
+                                    Reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        class="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-text-light dark:text-text-dark mb-2">RoboForex</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
+                                RoboForex is known for its innovative tools, multiple account types, and attractive
+                                bonuses for traders of all levels. There are...
+                            </p>
+                            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Certified pre-approval Process
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Online Application Available 24/7
+                                </li>
+                                <li class="flex items-center">
+                                    <span
+                                        class="material-icons-outlined text-primary text-lg mr-2">check_circle_outline</span>
+                                    Online Application Available 24/7
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
+                        <a class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
+                            href="#">
+                            Visit Site <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <a class="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
+                            href="#">
+                            Read More <span class="material-icons-outlined text-sm ml-2">arrow_forward</span>
+                        </a>
+                        <p class="text-[10px] text-gray-400 text-center mt-1">* Terms &amp; Conditions Apply</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <a class="fixed bottom-8 right-8 bg-primary hover:bg-blue-600 text-white p-3 rounded-full shadow-lg transition-transform hover:-translate-y-1 z-50"
+        href="#">
+        <span class="material-icons-outlined">keyboard_arrow_up</span>
+    </a>
+    <div class="h-20"></div>
+    <script>
+        // Simple script to toggle checkbox styling visually if needed, though mostly handled by Tailwind forms plugin default behavior.
+        // This is a placeholder for interaction logic.
+    </script>
+
+</body>
+
+</html>
