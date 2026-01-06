@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@lexical-playground/*": ["./public/lexical-playground/src/*"]
     }
   },
   "include": [

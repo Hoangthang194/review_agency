@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -8,6 +10,16 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
       },
     ],
+  },
+  // Turbopack config for Next.js 16
+  turbopack: {},
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@lexical-playground": path.resolve(__dirname, "public/lexical-playground/src"),
+      "@lexical-playground/": path.resolve(__dirname, "public/lexical-playground/src/"),
+    };
+    return config;
   },
 };
 
