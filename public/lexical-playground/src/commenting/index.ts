@@ -359,13 +359,14 @@ export class CommentStore {
               const retain = delta.retain;
               const del = delta.delete;
               const parent = target.parent;
-              const parentThread =
+              const parentThread: Thread | undefined =
                 target === sharedCommentsArray
                   ? undefined
-                  : parent instanceof YMap &&
-                    (this._comments.find((t) => t.id === parent.get('id')) as
-                      | Thread
-                      | undefined);
+                  : parent instanceof YMap
+                    ? (this._comments.find((t) => t.id === parent.get('id')) as
+                        | Thread
+                        | undefined)
+                    : undefined;
 
               if (Array.isArray(insert)) {
                 insert

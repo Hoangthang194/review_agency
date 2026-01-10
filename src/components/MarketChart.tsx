@@ -142,7 +142,10 @@ export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
                             color: '#374151',
                         }}
                         labelStyle={{ fontWeight: 'bold', color: '#374151' }}
-                        formatter={(value: number) => {
+                        formatter={(value: number | undefined) => {
+                            if (value === undefined || value === null) {
+                                return ['N/A', 'Price'];
+                            }
                             return [`$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Price'];
                         }}
                     />
