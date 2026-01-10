@@ -39,6 +39,7 @@
     "react-dom": "19.2.3",
     "react-error-boundary": "^6.0.0",
     "react-hot-toast": "^2.6.0",
+    "recharts": "^3.6.0",
     "tailwind-merge": "^3.4.0",
     "y-websocket": "^1.5.4",
     "yjs": "^13.6.28"

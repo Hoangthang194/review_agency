@@ -148,19 +148,19 @@ export function Navbar() {
                                     All Analysis
                                 </Link>
                                 <Link
-                                    href="/market-analysis?category=forex"
+                                    href="/market-analysis/forex"
                                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
                                 >
                                     Forex Analysis
                                 </Link>
                                 <Link
-                                    href="/market-analysis?category=crypto"
+                                    href="/market-analysis/crypto"
                                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
                                 >
                                     Crypto Analysis
                                 </Link>
                                 <Link
-                                    href="/market-analysis?category=stocks"
+                                    href="/market-analysis/stocks"
                                     className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-primary transition transform hover:translate-x-1"
                                 >
                                     Stock Analysis

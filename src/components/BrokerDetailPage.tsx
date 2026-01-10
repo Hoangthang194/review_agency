@@ -3,7 +3,7 @@
 import { PageHero } from "./PageHero";
 import Link from "next/link";
 import Image from "next/image";
-import { BrokerData } from "@/data/mockData";
+import { BrokerData, forexBrokersData, cryptoExchangesData, propFirmsData } from "@/data/mockData";
 
 interface BrokerDetailPageProps {
     data: BrokerData;
@@ -23,6 +23,22 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
         crypto: "/crypto-exchanges",
         prop: "/prop-firms",
     };
+
+    // Get related brokers (same type, different slug)
+    const getRelatedBrokers = (): BrokerData[] => {
+        let allBrokers: BrokerData[] = [];
+        if (type === "forex") {
+            allBrokers = Object.values(forexBrokersData);
+        } else if (type === "crypto") {
+            allBrokers = Object.values(cryptoExchangesData);
+        } else if (type === "prop") {
+            allBrokers = Object.values(propFirmsData);
+        }
+        // Filter out current broker and get 3 related ones
+        return allBrokers.filter(broker => broker.slug !== data.slug).slice(0, 3);
+    };
+
+    const relatedBrokers = getRelatedBrokers();
 
     const renderStars = (rating: number) => {
         return [...Array(5)].map((_, i) => (
@@ -172,15 +188,6 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                             </div>
                         </div>
 
-                        <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                                Overview
-                            </h2>
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300">
-                                <p className="mb-4">{data.overview}</p>
-                            </div>
-                        </section>
-
                         <div className="bg-surface-light dark:bg-card-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                             <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200 dark:divide-gray-700">
                                 <div className="p-6">
@@ -233,18 +240,14 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                         </div>
 
                         <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                                Key Features
-                            </h2>
-                            <div className="space-y-6">
+                            <div className="prose dark:prose-invert max-w-none text-secondary-text dark:text-secondary-text-dark text-sm leading-relaxed">
+                                <p className="mb-4">{data.overview}</p>
                                 {data.features.map((feature, i) => (
                                     <div key={i}>
-                                        <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">
-                                            0{i + 1}. {feature.title} :
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">
+                                            {feature.title}
                                         </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-300 pl-4 border-l-2 border-primary">
-                                            {feature.description}
-                                        </p>
+                                        <p className="mb-4">{feature.description}</p>
                                     </div>
                                 ))}
                             </div>
@@ -286,103 +289,6 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                     ))}
                                 </div>
                             </div>
-                        </section>
-
-                        <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mt-8">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
-                                User Comments ({data.comments.length})
-                            </h2>
-                            <div className="space-y-6">
-                                {data.comments.map((comment, i) => (
-                                    <div key={i}>
-                                        <div className="flex gap-4">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-lg">
-                                                    {comment.initials}
-                                                </div>
-                                            </div>
-                                            <div className="flex-grow">
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-1">
-                                                    <h3 className="font-bold text-gray-900 dark:text-white text-base">
-                                                        {comment.author}
-                                                    </h3>
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {comment.date}
-                                                    </span>
-                                                </div>
-                                                <div className="flex text-yellow-400 text-sm mb-2">
-                                                    {renderStars(comment.rating)}
-                                                </div>
-                                                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-3">
-                                                    {comment.comment}
-                                                </p>
-                                                <button className="text-xs font-medium text-primary hover:text-blue-700 flex items-center gap-1 transition">
-                                                    <span className="material-icons-outlined text-sm">
-                                                        reply
-                                                    </span>{" "}
-                                                    Reply
-                                                </button>
-                                            </div>
-                                        </div>
-                                        {i < data.comments.length - 1 && (
-                                            <div className="border-t border-gray-100 dark:border-gray-700 mt-6"></div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                                Leave a Reply
-                            </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                                Your email address will not be published. Required fields are
-                                marked *
-                            </p>
-                            <form className="space-y-4">
-                                <div>
-                                    <input
-                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white placeholder-gray-400"
-                                        placeholder="Name*"
-                                        type="text"
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white placeholder-gray-400"
-                                        placeholder="Email*"
-                                        type="email"
-                                    />
-                                </div>
-                                <div>
-                                    <textarea
-                                        className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-transparent dark:text-white placeholder-gray-400"
-                                        placeholder="Comment"
-                                        rows={4}
-                                    ></textarea>
-                                </div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <input
-                                        className="rounded text-primary focus:ring-primary border-gray-300 dark:border-gray-600 dark:bg-gray-800"
-                                        id="save-info"
-                                        type="checkbox"
-                                    />
-                                    <label
-                                        className="text-xs text-gray-500 dark:text-gray-400"
-                                        htmlFor="save-info"
-                                    >
-                                        Save my name, email, and website in this browser for the
-                                        next time I comment.
-                                    </label>
-                                </div>
-                                <button
-                                    className="bg-primary hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition"
-                                    type="submit"
-                                >
-                                    Post Comment
-                                </button>
-                            </form>
                         </section>
                     </div>
 
@@ -449,6 +355,70 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                         </div>
                     </aside>
                 </div>
+
+                {/* Related Brokers Section */}
+                {relatedBrokers.length > 0 && (
+                    <section className="mt-12">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-3">
+                            Related Reviews
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {relatedBrokers.map((broker) => (
+                                <Link
+                                    key={broker.slug}
+                                    href={`${typePaths[type]}/${broker.slug}`}
+                                    className="bg-surface-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all hover:-translate-y-1 group"
+                                >
+                                    <div className="p-6">
+                                        <div className="flex items-start gap-4 mb-4">
+                                            {broker.logo ? (
+                                                <div className={`w-16 h-16 ${broker.logoBg || "bg-black"} rounded-lg flex items-center justify-center p-2 shadow-inner overflow-hidden flex-shrink-0`}>
+                                                    <Image
+                                                        src={broker.logo}
+                                                        alt={broker.name}
+                                                        width={56}
+                                                        height={56}
+                                                        className="object-contain"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className={`w-16 h-16 ${broker.logoBg || "bg-black"} rounded-lg flex items-center justify-center p-2 shadow-inner flex-shrink-0`}>
+                                                    <span className="text-white font-bold text-lg">
+                                                        {broker.name.substring(0, 2).toUpperCase()}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="flex-grow min-w-0">
+                                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors line-clamp-2">
+                                                    {broker.name} Review 2024
+                                                </h3>
+                                                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                                                    <div className="flex text-yellow-400">
+                                                        {renderStars(broker.rating)}
+                                                    </div>
+                                                    <span>({broker.reviews.toLocaleString()}+ Reviews)</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
+                                            {broker.description}
+                                        </p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {broker.tags.slice(0, 2).map((tag, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded border border-blue-100 dark:border-blue-800"
+                                                >
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )}
             </div>
         </>
     );

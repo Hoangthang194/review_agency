@@ -6,33 +6,38 @@ import { Footer } from "@/components/Footer";
 import { MarketAnalysisContent } from "@/components/MarketAnalysisContent";
 import { marketData } from "@/data/marketData";
 
-export default function MarketAnalysis() {
+export default function StockAnalysis() {
+    const stockData = marketData.filter(item => item.type === "stock");
+
     return (
         <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-200">
             <Navbar />
             <main className="flex-grow">
                 <PageHero
-                    title="Market Price Analysis"
+                    title="Stock Analysis"
                     breadcrumbs={[
                         { label: "Home", href: "/" },
-                        { label: "Market Analysis" },
+                        { label: "Market Analysis", href: "/market-analysis" },
+                        { label: "Stock Analysis" },
                     ]}
                     backgroundImage="/market.jpg"
                 />
                 <MarketAnalysisContent
-                    marketData={marketData}
-                    title="All Markets"
+                    marketData={stockData}
+                    title="Stock Market"
                     breadcrumbs={[
                         { label: "Home", href: "/" },
-                        { label: "Market Analysis" },
+                        { label: "Market Analysis", href: "/market-analysis" },
+                        { label: "Stock Analysis" },
                     ]}
-                    type="all"
-                    headerIcon="show_chart"
-                    headerColor="from-purple-500 to-purple-600"
-                    showMarketCap={false}
+                    type="stock"
+                    headerIcon="bar_chart"
+                    headerColor="from-green-500 to-green-600"
+                    showMarketCap={true}
                 />
             </main>
             <Footer />
         </div>
     );
 }
+
