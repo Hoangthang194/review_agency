@@ -8,7 +8,8 @@ module.exports = {
         cwd: "C:\\Users\\Administrator\\Documents\\review_agency",
         autorestart: true,
         env: {
-          NODE_ENV: "production"
+          NODE_ENV: "production",
+          PORT: 3001
         }
       }
     ]
