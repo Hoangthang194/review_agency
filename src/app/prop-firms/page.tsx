@@ -1,10 +1,55 @@
+"use client";
+
 import { Navbar } from "@/components/Navbar";
 import { PageHero } from "@/components/PageHero";
 import { Footer } from "@/components/Footer";
 import Link from "next/link";
 import Image from "next/image";
+import { ExternalImage } from "@/components/ExternalImage";
+import { useReviews, Review } from "@/hooks";
+
+// Helper function to render stars
+const renderStars = (rating: number) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0 && rating % 1 >= 0.5;
+    return (
+        <>
+            {[...Array(fullStars)].map((_, i) => (
+                <span key={i} className="material-icons-outlined text-lg">
+                    star
+                </span>
+            ))}
+            {hasHalfStar && (
+                <span className="material-icons-outlined text-lg">
+                    star_half
+                </span>
+            )}
+            {[...Array(5 - fullStars - (hasHalfStar ? 1 : 0))].map((_, i) => (
+                <span key={`empty-${i}`} className="material-icons-outlined text-lg text-gray-300 dark:text-gray-600">
+                    star_outline
+                </span>
+            ))}
+        </>
+    );
+};
+
+// Helper function to get route path based on review type and slug
+const getRoutePath = (type: string, slug: string) => {
+    switch (type) {
+        case "prop":
+            return `/prop-firms/${slug}`;
+        case "forex":
+            return `/forex-brokers/${slug}`;
+        case "crypto":
+            return `/crypto-exchanges/${slug}`;
+        default:
+            return `#`;
+    }
+};
 
 export default function PropFirms() {
+    const { data: reviews, loading, error } = useReviews({ type: "prop" });
+
     return (
         <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark transition-colors duration-200">
             <Navbar />
@@ -107,296 +152,122 @@ export default function PropFirms() {
                             </div>
                         </aside>
                         <div className="w-full lg:w-3/4 space-y-6">
-                            {/* FTMO Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
-                                <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
-                                    <div className="w-full h-32 bg-[#1a1a1a] rounded-lg flex items-center justify-center overflow-hidden">
-                                        <span className="text-white font-bold text-3xl">
-                                            FTMO
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
-                                            5
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <div className="flex text-orange-400 text-sm">
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                            </div>
-                                            <span className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
-                                                Customer Reviews
-                                            </span>
-                                        </div>
-                                    </div>
+                            {loading && (
+                                <div className="flex items-center justify-center min-h-[400px]">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                                 </div>
-                                <div className="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-2">
-                                            FTMO
-                                        </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
-                                            25K+ Reviews FTMO There are many variations of passages
-                                            of Lorem Ipsum available, but the majority have suffered
-                                            alteration in...
-                                        </p>
-                                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Certified pre-approval Process
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Online Application Available 24/7
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Find a Quote Easily
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                100% Online Refinance
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
-                                    <Link
-                                        className="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
-                                        href="/prop-firms/ftmo"
-                                    >
-                                        Visit Site{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <Link
-                                        className="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
-                                        href="/prop-firms/ftmo"
-                                    >
-                                        Read More{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <p className="text-[10px] text-gray-400 text-center mt-1">
-                                        * Terms &amp; Conditions Apply
+                            )}
+                            {error && (
+                                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                                    <p className="text-red-700 dark:text-red-400">
+                                        Error loading reviews: {error.message}
                                     </p>
                                 </div>
-                            </div>
-
-                            {/* The5ers Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
-                                <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
-                                    <div className="w-full h-32 bg-[#0066CC] rounded-lg flex items-center justify-center overflow-hidden">
-                                        <span className="text-white font-bold text-2xl">
-                                            The5ers
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
-                                            4
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <div className="flex text-orange-400 text-sm">
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star_half
-                                                </span>
-                                                <span className="material-icons-outlined text-lg text-gray-300 dark:text-gray-600">
-                                                    star_outline
-                                                </span>
+                            )}
+                            {!loading && !error && reviews.length === 0 && (
+                                <div className="text-center py-12">
+                                    <p className="text-gray-500 dark:text-gray-400">No prop firms found.</p>
+                                </div>
+                            )}
+                            {!loading && !error && reviews.map((review) => {
+                                const routePath = getRoutePath(review.review_type, review.slug);
+                                const logoBg = review.logo_bg || "bg-gray-800";
+                                const pros = review.pros || review.advantages || [];
+                                
+                                return (
+                                    <div key={review.id} className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
+                                        <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
+                                            <div className={`w-full h-32 ${logoBg} rounded-lg flex items-center justify-center overflow-hidden`}>
+                                                {review.logo ? (
+                                                    review.logo.startsWith("http://") || review.logo.startsWith("https://") ? (
+                                                        <ExternalImage
+                                                            src={review.logo}
+                                                            alt={`${review.name} Logo`}
+                                                            width={120}
+                                                            height={60}
+                                                            className="h-12 object-contain"
+                                                        />
+                                                    ) : (
+                                                        <Image
+                                                            alt={`${review.name} Logo`}
+                                                            width={120}
+                                                            height={60}
+                                                            className="h-12 object-contain"
+                                                            src={review.logo}
+                                                        />
+                                                    )
+                                                ) : (
+                                                    <span className="text-white font-bold text-2xl">
+                                                        {review.name}
+                                                    </span>
+                                                )}
                                             </div>
-                                            <span className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
-                                                Customer Reviews
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-2">
-                                            The5ers
-                                        </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
-                                            25K+ Reviews The5ers There are many variations of
-                                            passages of Lorem Ipsum available, but the majority have
-                                            suffered alteration in...
-                                        </p>
-                                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Certified pre-approval Process
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Find a Quote Easily
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Online Application Available 24/7
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                100% Online Refinance
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
-                                    <Link
-                                        className="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
-                                        href="/prop-firms/the5ers"
-                                    >
-                                        Visit Site{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <Link
-                                        className="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
-                                        href="/prop-firms/the5ers"
-                                    >
-                                        Read More{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <p className="text-[10px] text-gray-400 text-center mt-1">
-                                        * Terms &amp; Conditions Apply
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* TopStep Card */}
-                            <div className="bg-card-light dark:bg-card-dark rounded-xl shadow-sm hover:shadow-md p-6 lg:p-8 flex flex-col md:flex-row gap-8 transition-smooth">
-                                <div className="w-full md:w-1/4 flex flex-col items-center justify-center space-y-4">
-                                    <div className="w-full h-32 bg-[#FF6B00] rounded-lg flex items-center justify-center overflow-hidden">
-                                        <span className="text-white font-bold text-2xl">
-                                            TopStep
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
-                                            5
-                                        </div>
-                                        <div className="flex flex-col items-end">
-                                            <div className="flex text-orange-400 text-sm">
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
-                                                <span className="material-icons-outlined text-lg">
-                                                    star
-                                                </span>
+                                            <div className="flex items-center space-x-3 w-full justify-between bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+                                                <div className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-primary text-primary font-bold text-lg">
+                                                    {review.rating}
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <div className="flex text-orange-400 text-sm">
+                                                        {renderStars(review.rating)}
+                                                    </div>
+                                                    <span className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
+                                                        Customer Reviews
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <span className="text-[10px] text-gray-500 uppercase tracking-wide mt-0.5">
-                                                Customer Reviews
-                                            </span>
+                                        </div>
+                                        <div className="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-2">
+                                                    {review.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
+                                                    {review.reviews.toLocaleString('en-US')}+ Reviews {review.description}
+                                                </p>
+                                                {pros.length > 0 && (
+                                                    <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
+                                                        {pros.slice(0, 4).map((pro, index) => (
+                                                            <li key={index} className="flex items-center">
+                                                                <span className="material-icons-outlined text-primary text-lg mr-2">
+                                                                    check_circle_outline
+                                                                </span>
+                                                                {pro}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
+                                            {review.url_site && (
+                                                <Link
+                                                    className="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
+                                                    href={review.url_site}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    Visit Site{" "}
+                                                    <span className="material-icons-outlined text-sm ml-2">
+                                                        arrow_forward
+                                                    </span>
+                                                </Link>
+                                            )}
+                                            <Link
+                                                className="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
+                                                href={routePath}
+                                            >
+                                                Read More{" "}
+                                                <span className="material-icons-outlined text-sm ml-2">
+                                                    arrow_forward
+                                                </span>
+                                            </Link>
+                                            <p className="text-[10px] text-gray-400 text-center mt-1">
+                                                * Terms &amp; Conditions Apply
+                                            </p>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="w-full md:w-1/2 flex flex-col justify-between border-r-0 md:border-r border-gray-100 dark:border-gray-700 pr-0 md:pr-6">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-text-light dark:text-text-dark mb-2">
-                                            TopStep
-                                        </h3>
-                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 leading-relaxed line-clamp-2">
-                                            TopStep is known for its innovative tools, multiple
-                                            account types, and attractive bonuses for traders of all
-                                            levels. There are...
-                                        </p>
-                                        <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300 mt-4">
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Certified pre-approval Process
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Online Application Available 24/7
-                                            </li>
-                                            <li className="flex items-center">
-                                                <span className="material-icons-outlined text-primary text-lg mr-2">
-                                                    check_circle_outline
-                                                </span>
-                                                Online Application Available 24/7
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div className="w-full md:w-1/4 flex flex-col justify-center gap-4 pl-0 md:pl-2">
-                                    <Link
-                                        className="w-full bg-primary hover:bg-blue-600 text-white font-medium py-2.5 rounded-full text-center transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center"
-                                        href="/prop-firms/topstep"
-                                    >
-                                        Visit Site{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <Link
-                                        className="w-full bg-white dark:bg-transparent border border-primary text-primary hover:bg-gray-50 dark:hover:bg-gray-800 font-medium py-2.5 rounded-full text-center transition-colors flex items-center justify-center"
-                                        href="/prop-firms/topstep"
-                                    >
-                                        Read More{" "}
-                                        <span className="material-icons-outlined text-sm ml-2">
-                                            arrow_forward
-                                        </span>
-                                    </Link>
-                                    <p className="text-[10px] text-gray-400 text-center mt-1">
-                                        * Terms &amp; Conditions Apply
-                                    </p>
-                                </div>
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -411,4 +282,3 @@ export default function PropFirms() {
         </div>
     );
 }
-

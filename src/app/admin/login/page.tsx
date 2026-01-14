@@ -3,29 +3,26 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/hooks";
 
 export default function AdminLogin() {
   const router = useRouter();
+  const { login, loading, error: loginError, isAuthenticated } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
-    // Simulate login - replace with actual authentication
-    setTimeout(() => {
-      if (email === "admin@review.com" && password === "admin123") {
-        localStorage.setItem("adminAuth", "true");
-        router.push("/admin");
-      } else {
-        setError("Invalid email or password");
-        setLoading(false);
-      }
-    }, 1000);
+    try {
+      await login(email, password);
+      // Login successful, redirect immediately
+      router.replace("/admin/reviews");
+    } catch (err: any) {
+      setError(err.message || "Invalid email or password");
+    }
   };
 
   return (
@@ -49,10 +46,10 @@ export default function AdminLogin() {
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
+            {(error || loginError) && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg flex items-center gap-2">
                 <span className="material-icons-outlined text-sm">error</span>
-                <span className="text-sm">{error}</span>
+                <span className="text-sm">{error || loginError?.message || "Login failed"}</span>
               </div>
             )}
 
@@ -121,16 +118,6 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <p className="text-sm text-blue-800 dark:text-blue-300 font-medium mb-2">
-              Demo Credentials:
-            </p>
-            <p className="text-xs text-blue-700 dark:text-blue-400">
-              Email: admin@review.com<br />
-              Password: admin123
-            </p>
-          </div>
 
           {/* Back to Home */}
           <div className="mt-6 text-center">

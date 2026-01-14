@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/hooks";
 
 export default function AdminLayout({
   children,
@@ -11,27 +12,39 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const { logout } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const auth = localStorage.getItem("adminAuth");
-    if (auth === "true") {
-      setIsAuthenticated(true);
-    } else {
-      if (pathname !== "/admin/login") {
-        router.push("/admin/login");
-      }
+    // Check authentication from localStorage after mount
+    const token = localStorage.getItem("auth_token");
+    const user = localStorage.getItem("auth_user");
+    const authenticated = token !== null && user !== null;
+    setIsAuthenticated(authenticated);
+
+    // Only redirect if we're not on login page
+    if (pathname === "/admin/login") {
+      return;
     }
-    setLoading(false);
-  }, [router, pathname]);
+    
+    // Redirect to login if not authenticated
+    if (!authenticated) {
+      router.replace("/admin/login");
+    }
+  }, [pathname, router]);
 
   const handleLogout = () => {
-    localStorage.removeItem("adminAuth");
+    logout();
     router.push("/admin/login");
   };
 
-  if (loading) {
+  // Show login page without layout
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
+  // Show loading while checking authentication (null means not checked yet)
+  if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -39,18 +52,20 @@ export default function AdminLayout({
     );
   }
 
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
-
+  // Show loading or nothing while not authenticated
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: "dashboard" },
     { href: "/admin/reviews", label: "Reviews", icon: "rate_review" },
-    { href: "/admin/market-analysis", label: "Market Analysis", icon: "analytics" },
+    { href: "/admin/contacts", label: "Contacts", icon: "mail" },
+    { href: "/admin/links", label: "Links", icon: "link" },
+    { href: "/admin/scripts", label: "Scripts", icon: "code" },
     { href: "/admin/accounts", label: "Account Management", icon: "people" },
   ];
 

@@ -1,11 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { PageHero } from "@/components/PageHero";
 import { Footer } from "@/components/Footer";
 import { AnimateIn } from "@/components/AnimateIn";
+import { submitContact, ContactFormData } from "@/hooks";
 
 export default function Contact() {
+    const [formData, setFormData] = useState<ContactFormData>({
+        name: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+    });
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setSubmitting(true);
+        setError("");
+        setSuccess(false);
+
+        try {
+            await submitContact(formData);
+
+            setSuccess(true);
+            setFormData({
+                name: "",
+                email: "",
+                phone: "",
+                subject: "",
+                message: "",
+            });
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                setSuccess(false);
+            }, 5000);
+        } catch (err: any) {
+            setError(err.message || "An error occurred. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark transition-colors duration-300">
             <Navbar />
@@ -30,7 +72,24 @@ export default function Contact() {
                                             Get in touch with us.
                                         </h2>
                                     </div>
-                                    <form className="space-y-6">
+
+                                    {/* Success Message */}
+                                    {success && (
+                                        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                                            <p className="text-sm text-green-800 dark:text-green-400">
+                                                Thank you for your message! We'll get back to you soon.
+                                            </p>
+                                        </div>
+                                    )}
+
+                                    {/* Error Message */}
+                                    {error && (
+                                        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                            <p className="text-sm text-red-800 dark:text-red-400">{error}</p>
+                                        </div>
+                                    )}
+
+                                    <form className="space-y-6" onSubmit={handleSubmit}>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label
@@ -45,6 +104,9 @@ export default function Contact() {
                                                     placeholder="Enter Your Name..."
                                                     type="text"
                                                     required
+                                                    value={formData.name}
+                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    disabled={submitting}
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -60,6 +122,9 @@ export default function Contact() {
                                                     placeholder="Enter Your Email..."
                                                     type="email"
                                                     required
+                                                    value={formData.email}
+                                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                    disabled={submitting}
                                                 />
                                             </div>
                                         </div>
@@ -76,6 +141,9 @@ export default function Contact() {
                                                     id="phone"
                                                     placeholder="Enter Your Number..."
                                                     type="tel"
+                                                    value={formData.phone}
+                                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                    disabled={submitting}
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -91,6 +159,9 @@ export default function Contact() {
                                                     placeholder="Subject"
                                                     type="text"
                                                     required
+                                                    value={formData.subject}
+                                                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                                                    disabled={submitting}
                                                 />
                                             </div>
                                         </div>
@@ -107,14 +178,18 @@ export default function Contact() {
                                                 placeholder="Enter Your Message..."
                                                 rows={6}
                                                 required
+                                                value={formData.message}
+                                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                                disabled={submitting}
                                             ></textarea>
                                         </div>
                                         <div className="pt-2">
                                             <button
-                                                className="px-8 py-3 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-900 font-semibold transition duration-300 text-sm"
+                                                className="px-8 py-3 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-400 dark:hover:text-gray-900 font-semibold transition duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                 type="submit"
+                                                disabled={submitting}
                                             >
-                                                Send Message
+                                                {submitting ? "Sending..." : "Send Message"}
                                             </button>
                                         </div>
                                     </form>

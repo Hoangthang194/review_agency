@@ -92,5 +92,15 @@ export const technicalAnalysisData: Record<string, TechnicalAnalysisData> = {
         recommendation: "buy",
         summary: "Alphabet is showing upward momentum with positive MACD. RSI at healthy levels. Recommend buying at support zone $140 with target $146."
     },
+    "XAU/USD": {
+        symbol: "XAU/USD",
+        support: 2600.00,
+        resistance: 2700.00,
+        trend: "bullish",
+        rsi: 58.5,
+        macd: "+12.50",
+        recommendation: "buy",
+        summary: "Gold is showing positive upward momentum with RSI at neutral levels. Price is approaching the resistance zone. Recommend buying on pullback to support zone."
+    },
 };
 

@@ -11,39 +11,24 @@ export function FAQ() {
 
     const faqs = [
         {
-            question: "What Is Forex Trading?",
+            question: "Which broker is best for beginners?",
             answer:
-                "A Forex broker is a company that provides a platform for you to trade currencies, often offering tools, signals, and support for successful trading.",
+                "There is no single best broker for everyone. Beginners should look for strong regulation, low minimum deposits, and user-friendly platforms.",
         },
         {
-            question: "Is Forex Trading Safe?",
+            question: "How do you review Forex brokers?",
             answer:
-                "Forex trading involves risk, but with proper knowledge and a regulated broker, it can be a safe investment vehicle when managed correctly.",
+                "We evaluate brokers based on regulation, trading costs, execution quality, platform reliability, and withdrawal experience.",
         },
         {
-            question: "How Do I Start Trading Forex?",
+            question: "Can I trust the brokers you recommend?",
             answer:
-                "You can start by choosing a broker, opening an account, and learning the basics through demo trading.",
+                "We only review brokers that are properly regulated and have passed our internal safety and performance checks.",
         },
         {
-            question: "What Is Leverage In Forex?",
+            question: "Can I open an account directly through your website?",
             answer:
-                "Leverage allows you to control a larger position with a smaller amount of capital. It amplifies both profits and losses.",
-        },
-        {
-            question: "What Is A Forex Broker?",
-            answer:
-                "A Forex broker is an intermediary that provides traders with access to a platform for buying and selling foreign currencies.",
-        },
-        {
-            question: "Can I Trade Forex On My Mobile?",
-            answer:
-                "Yes, most brokers offer mobile apps that allow you to trade on the go.",
-        },
-        {
-            question: "How Can I Profit From Forex Trading?",
-            answer:
-                "Profits are made by correctly predicting currency price movements—buying low and selling high, or selling high and buying low.",
+                "Yes. By clicking our broker links, you'll be redirected to the broker's official website to open an account securely.",
         },
     ];
 
@@ -79,37 +64,15 @@ export function FAQ() {
                         isOpen={openIndex === 1}
                         onClick={() => toggle(1)}
                     />
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FAQItem
-                            item={faqs[2]}
-                            isOpen={openIndex === 2}
-                            onClick={() => toggle(2)}
-                        />
-                        <FAQItem
-                            item={faqs[3]}
-                            isOpen={openIndex === 3}
-                            onClick={() => toggle(3)}
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FAQItem
-                            item={faqs[4]}
-                            isOpen={openIndex === 4}
-                            onClick={() => toggle(4)}
-                        />
-                        <FAQItem
-                            item={faqs[5]}
-                            isOpen={openIndex === 5}
-                            onClick={() => toggle(5)}
-                        />
-                    </div>
-
                     <FAQItem
-                        item={faqs[6]}
-                        isOpen={openIndex === 6}
-                        onClick={() => toggle(6)}
+                        item={faqs[2]}
+                        isOpen={openIndex === 2}
+                        onClick={() => toggle(2)}
+                    />
+                    <FAQItem
+                        item={faqs[3]}
+                        isOpen={openIndex === 3}
+                        onClick={() => toggle(3)}
                     />
                 </div>
             </div>

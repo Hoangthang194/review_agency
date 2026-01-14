@@ -7,6 +7,35 @@ import { LexicalEditor } from "@/components/admin/LexicalEditor";
 
 type ReviewType = "forex" | "crypto" | "prop";
 
+// Common Material Icons for stats
+const STAT_ICONS = [
+  { value: "payments", label: "Payments" },
+  { value: "percent", label: "Percent" },
+  { value: "schedule", label: "Schedule" },
+  { value: "security", label: "Security" },
+  { value: "account_balance_wallet", label: "Wallet" },
+  { value: "trending_up", label: "Trending Up" },
+  { value: "trending_down", label: "Trending Down" },
+  { value: "info", label: "Info" },
+  { value: "person", label: "Person" },
+  { value: "local_atm", label: "ATM" },
+  { value: "attach_money", label: "Money" },
+  { value: "credit_card", label: "Credit Card" },
+  { value: "account_balance", label: "Account Balance" },
+  { value: "savings", label: "Savings" },
+  { value: "pie_chart", label: "Chart" },
+  { value: "show_chart", label: "Show Chart" },
+  { value: "bar_chart", label: "Bar Chart" },
+  { value: "calendar_today", label: "Calendar" },
+  { value: "timer", label: "Timer" },
+  { value: "lock", label: "Lock" },
+  { value: "verified", label: "Verified" },
+  { value: "star", label: "Star" },
+  { value: "favorite", label: "Favorite" },
+  { value: "thumb_up", label: "Thumb Up" },
+  { value: "check_circle", label: "Check Circle" },
+];
+
 export default function AdminNewReviewPage() {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -18,12 +47,12 @@ export default function AdminNewReviewPage() {
   const [rating, setRating] = useState(5);
   const [reviews, setReviews] = useState(0);
   const [description, setDescription] = useState("");
+  const [urlSite, setUrlSite] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
   const [logoBg, setLogoBg] = useState("bg-black");
   const [imageUrl, setImageUrl] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [overview, setOverview] = useState("");
   const [pros, setPros] = useState<string[]>([]);
   const [proInput, setProInput] = useState("");
   const [cons, setCons] = useState<string[]>([]);
@@ -48,11 +77,6 @@ export default function AdminNewReviewPage() {
   const [keyInfo, setKeyInfo] = useState([
     { label: "Effective Interest from:", value: "" },
     { label: "Minimum Loan Amount:", value: "" },
-  ]);
-
-  // Features
-  const [features, setFeatures] = useState([
-    { title: "", description: "" },
   ]);
 
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
@@ -170,7 +194,7 @@ export default function AdminNewReviewPage() {
 
   const updateStat = (index: number, field: "icon" | "title" | "value", value: string) => {
     const newStats = [...stats];
-    newStats[index] = { ...newStats[index], [field]: value };
+    newStats[index] = { ...newStats[index], [field]: value || "" };
     setStats(newStats);
   };
 
@@ -184,7 +208,7 @@ export default function AdminNewReviewPage() {
 
   const updateTerm = (index: number, field: "label" | "value", value: string) => {
     const newTerms = [...terms];
-    newTerms[index] = { ...newTerms[index], [field]: value };
+    newTerms[index] = { ...newTerms[index], [field]: value || "" };
     setTerms(newTerms);
   };
 
@@ -198,30 +222,12 @@ export default function AdminNewReviewPage() {
 
   const updateKeyInfo = (index: number, field: "label" | "value", value: string) => {
     const newKeyInfo = [...keyInfo];
-    newKeyInfo[index] = { ...newKeyInfo[index], [field]: value };
+    newKeyInfo[index] = { ...newKeyInfo[index], [field]: value || "" };
     setKeyInfo(newKeyInfo);
   };
 
   const removeKeyInfo = (index: number) => {
     setKeyInfo(keyInfo.filter((_, i) => i !== index));
-  };
-
-  const addFeature = () => {
-    setFeatures([...features, { title: "", description: "" }]);
-  };
-
-  const updateFeature = (
-    index: number,
-    field: "title" | "description",
-    value: string
-  ) => {
-    const newFeatures = [...features];
-    newFeatures[index] = { ...newFeatures[index], [field]: value };
-    setFeatures(newFeatures);
-  };
-
-  const removeFeature = (index: number) => {
-    setFeatures(features.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -236,23 +242,42 @@ export default function AdminNewReviewPage() {
     setError(null);
 
     try {
-      const reviewData = {
+      const reviewData: {
+        slug: string;
+        name: string;
+        rating: number;
+        reviews: number;
+        description: string;
+        url_site?: string;
+        logo?: string;
+        logoBg?: string;
+        tags: string[];
+        stats: { icon: string; title: string; value: string }[];
+        terms: { label: string; value: string }[];
+        keyInfo: { label: string; value: string }[];
+        content: string;
+        pros: string[];
+        cons: string[];
+        averageRating: number;
+        ratingBreakdown: { stars: number; pct: string }[];
+        advantages: string[];
+        disadvantages: string[];
+      } = {
         slug,
         name,
         rating,
         reviews,
         description,
-        logo: logoUrl,
-        logoBg,
+        ...(urlSite && { url_site: urlSite }),
+        ...(logoUrl && { logo: logoUrl }),
+        ...(logoBg && { logoBg }),
         tags,
         stats: stats.filter((s) => s.title && s.value),
         terms: terms.filter((t) => t.label && t.value),
         keyInfo: keyInfo.filter((k) => k.label && k.value),
-        overview,
+        content: contentHtml || "",
         pros,
         cons,
-        features: features.filter((f) => f.title && f.description),
-        content: contentHtml || null,
         averageRating: rating,
         ratingBreakdown: [
           { stars: 5, pct: "85%" },
@@ -261,7 +286,6 @@ export default function AdminNewReviewPage() {
           { stars: 2, pct: "1%" },
           { stars: 1, pct: "1%" },
         ],
-        comments: [],
         advantages: pros,
         disadvantages: cons,
       };
@@ -319,77 +343,137 @@ export default function AdminNewReviewPage() {
       >
         {/* Left: Meta fields */}
         <div className="space-y-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Review Type *
-            </label>
-            <select
-              value={reviewType}
-              onChange={(e) => setReviewType(e.target.value as ReviewType)}
-              required
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="forex">Forex Broker</option>
-              <option value="crypto">Crypto Exchange</option>
-              <option value="prop">Prop Firm</option>
-            </select>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Review Type *
+              </label>
+              <select
+                value={reviewType}
+                onChange={(e) => setReviewType(e.target.value as ReviewType)}
+                required
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="forex">Forex Broker</option>
+                <option value="crypto">Crypto Exchange</option>
+                <option value="prop">Prop Firm</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Website URL
+              </label>
+              <input
+                type="url"
+                value={urlSite}
+                onChange={(e) => setUrlSite(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="https://example.com"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Tags
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+                  className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Add tag"
+                />
+                <button
+                  type="button"
+                  onClick={addTag}
+                  className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Enter broker/exchange name"
-            />
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-xs rounded"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+                >
+                  <span className="material-icons-outlined text-sm">close</span>
+                </button>
+              </span>
+            ))}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Slug *
-            </label>
-            <input
-              type="text"
-              required
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="URL-friendly slug"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Name *
+              </label>
+              <input
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Enter broker/exchange name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Slug *
+              </label>
+              <input
+                type="text"
+                required
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="URL-friendly slug"
+              />
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Rating (1-5) *
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              step="0.1"
-              required
-              value={rating}
-              onChange={(e) => setRating(parseFloat(e.target.value))}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Rating (1-5) *
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                step="0.1"
+                required
+                value={rating}
+                onChange={(e) => setRating(parseFloat(e.target.value))}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Number of Reviews
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={reviews}
-              onChange={(e) => setReviews(parseInt(e.target.value))}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Number of Reviews
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={reviews}
+                onChange={(e) => setReviews(parseInt(e.target.value))}
+                className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
           </div>
 
           <div>
@@ -403,19 +487,6 @@ export default function AdminNewReviewPage() {
               onChange={(e) => setDescription(e.target.value)}
               className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Short description"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Overview
-            </label>
-            <textarea
-              rows={4}
-              value={overview}
-              onChange={(e) => setOverview(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Detailed overview"
             />
           </div>
 
@@ -458,142 +529,108 @@ export default function AdminNewReviewPage() {
               </button>
             </div>
             {logoUrl && (
-              <div className="mt-2 relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50 max-w-xs">
+              <div className="mt-2 relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
                 <img
                   src={logoUrl}
                   alt="Logo preview"
-                  className="w-full h-auto max-h-24 object-contain"
+                  className="w-full h-auto max-h-20 object-contain"
                 />
               </div>
             )}
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Logo Background
-            </label>
-            <input
-              type="text"
-              value={logoBg}
-              onChange={(e) => setLogoBg(e.target.value)}
-              className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="e.g., bg-black, bg-[#001D5F]"
-            />
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tags
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Add tag and press Enter"
-              />
-              <button
-                type="button"
-                onClick={addTag}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-xs rounded"
-                >
-                  {tag}
-                  <button
-                    type="button"
-                    onClick={() => removeTag(tag)}
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                  >
-                    <span className="material-icons-outlined text-sm">close</span>
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Pros
               </label>
-              <button
-                type="button"
-                onClick={addPro}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-              >
-                + Add
-              </button>
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={proInput}
+                  onChange={(e) => setProInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addPro())}
+                  className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Add pro"
+                />
+                <button
+                  type="button"
+                  onClick={addPro}
+                  className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {pros.map((pro, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={pro}
+                      onChange={(e) => {
+                        const newPros = [...pros];
+                        newPros[index] = e.target.value;
+                        setPros(newPros);
+                      }}
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePro(pro)}
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      <span className="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              {pros.map((pro, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={pro}
-                    onChange={(e) => {
-                      const newPros = [...pros];
-                      newPros[index] = e.target.value;
-                      setPros(newPros);
-                    }}
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removePro(pro)}
-                    className="text-red-600 dark:text-red-400"
-                  >
-                    <span className="material-icons-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Cons
               </label>
-              <button
-                type="button"
-                onClick={addCon}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-              >
-                + Add
-              </button>
-            </div>
-            <div className="space-y-2">
-              {cons.map((con, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={con}
-                    onChange={(e) => {
-                      const newCons = [...cons];
-                      newCons[index] = e.target.value;
-                      setCons(newCons);
-                    }}
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeCon(con)}
-                    className="text-red-600 dark:text-red-400"
-                  >
-                    <span className="material-icons-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              ))}
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={conInput}
+                  onChange={(e) => setConInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addCon())}
+                  className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Add con"
+                />
+                <button
+                  type="button"
+                  onClick={addCon}
+                  className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg"
+                >
+                  Add
+                </button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {cons.map((con, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={con}
+                      onChange={(e) => {
+                        const newCons = [...cons];
+                        newCons[index] = e.target.value;
+                        setCons(newCons);
+                      }}
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeCon(con)}
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      <span className="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -614,23 +651,28 @@ export default function AdminNewReviewPage() {
             <div className="space-y-2">
               {stats.map((stat, index) => (
                 <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={stat.icon}
+                  <select
+                    value={stat.icon || ""}
                     onChange={(e) => updateStat(index, "icon", e.target.value)}
-                    placeholder="Icon"
-                    className="w-24 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
+                    className="w-40 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Icon</option>
+                    {STAT_ICONS.map((icon) => (
+                      <option key={icon.value} value={icon.value}>
+                        {icon.label}
+                      </option>
+                    ))}
+                  </select>
                   <input
                     type="text"
-                    value={stat.title}
+                    value={stat.title || ""}
                     onChange={(e) => updateStat(index, "title", e.target.value)}
                     placeholder="Title"
                     className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
                   />
                   <input
                     type="text"
-                    value={stat.value}
+                    value={stat.value || ""}
                     onChange={(e) => updateStat(index, "value", e.target.value)}
                     placeholder="Value"
                     className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
@@ -647,132 +689,92 @@ export default function AdminNewReviewPage() {
             </div>
           </div>
 
-          {/* Terms Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Terms
-              </label>
-              <button
-                type="button"
-                onClick={addTerm}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-              >
-                + Add
-              </button>
+          {/* Terms and Key Info in 2 columns */}
+          <div className="border-t border-gray-200 dark:border-gray-700 pt-4 grid grid-cols-2 gap-4">
+            {/* Terms Section */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Terms
+                </label>
+                <button
+                  type="button"
+                  onClick={addTerm}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                >
+                  + Add
+                </button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {terms.map((term, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={term.label || ""}
+                      onChange={(e) => updateTerm(index, "label", e.target.value)}
+                      placeholder="Label"
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      type="text"
+                      value={term.value || ""}
+                      onChange={(e) => updateTerm(index, "value", e.target.value)}
+                      placeholder="Value"
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeTerm(index)}
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      <span className="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="space-y-2">
-              {terms.map((term, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={term.label}
-                    onChange={(e) => updateTerm(index, "label", e.target.value)}
-                    placeholder="Label"
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    value={term.value}
-                    onChange={(e) => updateTerm(index, "value", e.target.value)}
-                    placeholder="Value"
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeTerm(index)}
-                    className="text-red-600 dark:text-red-400"
-                  >
-                    <span className="material-icons-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Key Info Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Key Info
-              </label>
-              <button
-                type="button"
-                onClick={addKeyInfo}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-              >
-                + Add
-              </button>
-            </div>
-            <div className="space-y-2">
-              {keyInfo.map((info, index) => (
-                <div key={index} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={info.label}
-                    onChange={(e) => updateKeyInfo(index, "label", e.target.value)}
-                    placeholder="Label"
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <input
-                    type="text"
-                    value={info.value}
-                    onChange={(e) => updateKeyInfo(index, "value", e.target.value)}
-                    placeholder="Value"
-                    className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeKeyInfo(index)}
-                    className="text-red-600 dark:text-red-400"
-                  >
-                    <span className="material-icons-outlined text-sm">delete</span>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Features Section */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Features
-              </label>
-              <button
-                type="button"
-                onClick={addFeature}
-                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-              >
-                + Add
-              </button>
-            </div>
-            <div className="space-y-2">
-              {features.map((feature, index) => (
-                <div key={index} className="space-y-2 border border-gray-200 dark:border-gray-700 rounded-lg p-2">
-                  <input
-                    type="text"
-                    value={feature.title}
-                    onChange={(e) => updateFeature(index, "title", e.target.value)}
-                    placeholder="Feature Title"
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <textarea
-                    value={feature.description}
-                    onChange={(e) => updateFeature(index, "description", e.target.value)}
-                    placeholder="Feature Description"
-                    rows={2}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-2 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeFeature(index)}
-                    className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
+            {/* Key Info Section */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Key Info
+                </label>
+                <button
+                  type="button"
+                  onClick={addKeyInfo}
+                  className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                >
+                  + Add
+                </button>
+              </div>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {keyInfo.map((info, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={info.label || ""}
+                      onChange={(e) => updateKeyInfo(index, "label", e.target.value)}
+                      placeholder="Label"
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <input
+                      type="text"
+                      value={info.value || ""}
+                      onChange={(e) => updateKeyInfo(index, "value", e.target.value)}
+                      placeholder="Value"
+                      className="flex-1 rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1.5 text-xs text-gray-900 dark:text-white bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeKeyInfo(index)}
+                      className="text-red-600 dark:text-red-400"
+                    >
+                      <span className="material-icons-outlined text-sm">delete</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -3,15 +3,19 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
 import { MarketData } from "./MarketAnalysisContent";
 import { useMemo } from "react";
+import { ChartDataPoint as CoinGeckoChartDataPoint } from "@/hooks/useCoinGecko";
 
 interface MarketChartProps {
     marketData: MarketData[];
     selectedSymbol?: string;
+    coinGeckoData?: CoinGeckoChartDataPoint[] | null; // Optional CoinGecko chart data
+    days?: number; // Number of days for chart (default: 30)
 }
 
 interface ChartDataPoint {
     time: string;
-    [key: string]: string | number;
+    date?: string; // For daily charts
+    [key: string]: string | number | undefined;
 }
 
 // Generate sample 24h data points
@@ -38,9 +42,47 @@ const generate24hData = (initialPrice: number, symbol: string): ChartDataPoint[]
     return data;
 };
 
-export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
+// Convert CoinGecko data to chart format (hourly or daily based on days parameter)
+function convertCoinGeckoToChartData(
+    coinGeckoData: CoinGeckoChartDataPoint[],
+    symbol: string,
+    days?: number
+): ChartDataPoint[] {
+    return coinGeckoData.map((point) => {
+        const date = new Date(point.timestamp);
+        let timeLabel: string;
+        
+        if (days === 1) {
+            // Format as HH:MM AM/PM for hourly charts
+            const hours = date.getHours();
+            const minutes = date.getMinutes();
+            const period = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12; // Convert to 12-hour format
+            timeLabel = `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+        } else {
+            // Format as MM/DD for daily charts
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            timeLabel = `${month}/${day}`;
+        }
+        
+        return {
+            time: timeLabel,
+            date: timeLabel,
+            [symbol]: point.price,
+        };
+    });
+}
+
+export function MarketChart({ marketData, selectedSymbol, coinGeckoData, days = 30 }: MarketChartProps) {
     // Generate chart data for all or selected symbol
     const chartData = useMemo(() => {
+        // If CoinGecko data is provided, use it
+        if (coinGeckoData && coinGeckoData.length > 0 && selectedSymbol) {
+            return convertCoinGeckoToChartData(coinGeckoData, selectedSymbol, days);
+        }
+        
+        // Fallback to generated data
         if (selectedSymbol) {
             const selected = marketData.find(item => item.symbol === selectedSymbol);
             if (selected) {
@@ -86,7 +128,7 @@ export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
         }
         
         return allData;
-    }, [marketData, selectedSymbol]);
+    }, [marketData, selectedSymbol, coinGeckoData, days]);
 
     const colors = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
@@ -106,10 +148,41 @@ export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
         ? [selectedSymbol]
         : Object.keys(chartData[0]).filter(key => key !== 'time').slice(0, 3);
 
+    // Calculate Y-axis domain to show volatility better (not starting from 0)
+    const yAxisDomain = useMemo(() => {
+        if (chartData.length === 0) return [0, 100];
+        
+        const allValues: number[] = [];
+        symbols.forEach(symbol => {
+            chartData.forEach(point => {
+                const value = point[symbol];
+                if (typeof value === 'number' && !isNaN(value)) {
+                    allValues.push(value);
+                }
+            });
+        });
+
+        if (allValues.length === 0) return [0, 100];
+
+        const min = Math.min(...allValues);
+        const max = Math.max(...allValues);
+        const range = max - min;
+        
+        // Add padding: 5% below min and 5% above max to show volatility better
+        const padding = range * 0.05;
+        const domainMin = Math.max(0, min - padding); // Don't go below 0 for prices
+        const domainMax = max + padding;
+        
+        return [domainMin, domainMax];
+    }, [chartData, symbols]);
+
     return (
         <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart 
+                    data={chartData} 
+                    margin={{ top: 10, right: 10, left: 0, bottom: coinGeckoData && coinGeckoData.length > 0 ? 50 : 20 }}
+                >
                     <defs>
                         {symbols.map((symbol, index) => (
                             <linearGradient key={symbol} id={`color${symbol}`} x1="0" y1="0" x2="0" y2="1">
@@ -124,15 +197,22 @@ export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
                         stroke="#6b7280"
                         tick={{ fill: '#6b7280', fontSize: 12 }}
                         className="dark:[&>text]:fill-gray-400"
+                        interval={coinGeckoData && coinGeckoData.length > 0 && days && days > 1 ? Math.floor(coinGeckoData.length / 7) : (coinGeckoData && coinGeckoData.length > 0 ? Math.floor(coinGeckoData.length / 12) : 0)}
+                        angle={coinGeckoData && coinGeckoData.length > 0 && days && days > 1 ? -45 : 0}
+                        textAnchor={coinGeckoData && coinGeckoData.length > 0 && days && days > 1 ? "end" : "middle"}
+                        height={coinGeckoData && coinGeckoData.length > 0 && days && days > 1 ? 60 : 30}
                     />
                     <YAxis 
+                        domain={yAxisDomain}
                         stroke="#6b7280"
                         tick={{ fill: '#6b7280', fontSize: 12 }}
                         className="dark:[&>text]:fill-gray-400"
                         tickFormatter={(value) => {
                             if (value >= 1000) return `$${(value / 1000).toFixed(1)}k`;
-                            return `$${value.toFixed(0)}`;
+                            if (value >= 1) return `$${value.toFixed(2)}`;
+                            return `$${value.toFixed(4)}`;
                         }}
+                        allowDataOverflow={false}
                     />
                     <Tooltip 
                         contentStyle={{
@@ -142,11 +222,20 @@ export function MarketChart({ marketData, selectedSymbol }: MarketChartProps) {
                             color: '#374151',
                         }}
                         labelStyle={{ fontWeight: 'bold', color: '#374151' }}
-                        formatter={(value: number | undefined) => {
+                        formatter={(value: number | undefined, name: string) => {
                             if (value === undefined || value === null) {
-                                return ['N/A', 'Price'];
+                                return ['N/A', name];
                             }
-                            return [`$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Price'];
+                            // Format with appropriate decimal places based on value
+                            let formattedValue: string;
+                            if (value >= 1000) {
+                                formattedValue = `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+                            } else if (value >= 1) {
+                                formattedValue = `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`;
+                            } else {
+                                formattedValue = `$${value.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 })}`;
+                            }
+                            return [formattedValue, name];
                         }}
                     />
                     <Legend 

@@ -20,24 +20,13 @@ export interface BrokerData {
         label: string;
         value: string;
     }[];
-    overview: string;
+    content: string;
     pros: string[];
     cons: string[];
-    features: {
-        title: string;
-        description: string;
-    }[];
     averageRating: number;
     ratingBreakdown: {
         stars: number;
         pct: string;
-    }[];
-    comments: {
-        author: string;
-        initials: string;
-        date: string;
-        rating: number;
-        comment: string;
     }[];
     advantages: string[];
     disadvantages: string[];
@@ -72,7 +61,19 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { label: "Maximum Loan Amount:", value: "600,000" },
             { label: "Maturity:", value: "18 years" },
         ],
-        overview: "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary. There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.",
+        content: `<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary. There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</p>
+
+<h3>Low Spreads</h3>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+
+<h3>Fast Execution</h3>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+
+<h3>Multiple Platforms</h3>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters.</p>
+
+<h3>Regulation</h3>
+<p>It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters.</p>`,
         pros: [
             "Competitive Interest Rates",
             "Flexible Repayment Options",
@@ -87,12 +88,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             "Fees and Charges",
             "Potential Impact on Credit",
         ],
-        features: [
-            { title: "Low Spreads", description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters." },
-            { title: "Fast Execution", description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters." },
-            { title: "Multiple Platforms", description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters." },
-            { title: "Regulation", description: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters." },
-        ],
         averageRating: 4.9,
         ratingBreakdown: [
             { stars: 5, pct: "85%" },
@@ -100,22 +95,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { stars: 3, pct: "15%" },
             { stars: 2, pct: "5%" },
             { stars: 1, pct: "8%" },
-        ],
-        comments: [
-            {
-                author: "John Doe",
-                initials: "JD",
-                date: "August 12, 2024 at 10:30 am",
-                rating: 5,
-                comment: "Binance has been my go-to exchange for years. The sheer volume of coins available and the liquidity is unmatched. The fees are also very reasonable, especially if you hold BNB. The mobile app is feature-rich but can be a bit overwhelming for beginners initially.",
-            },
-            {
-                author: "Sarah Anderson",
-                initials: "SA",
-                date: "July 28, 2024 at 3:15 pm",
-                rating: 4,
-                comment: "Good platform overall with great tools for technical analysis. However, customer support can be slow to respond during peak times. The P2P market is excellent for funding your account in regions where direct bank transfers are restricted.",
-            },
         ],
         advantages: [
             "Flexible account types",
@@ -157,7 +136,19 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { label: "Trading Pairs:", value: "50+" },
             { label: "Regulation:", value: "EU Licensed" },
         ],
-        overview: "Bitstamp has been operating since 2011, making it one of the oldest cryptocurrency exchanges in the world. The platform is known for its strong security measures, regulatory compliance, and user-friendly interface. It serves customers in over 100 countries and has built a reputation for reliability and trustworthiness in the crypto space.",
+        content: `<p>Bitstamp has been operating since 2011, making it one of the oldest cryptocurrency exchanges in the world. The platform is known for its strong security measures, regulatory compliance, and user-friendly interface. It serves customers in over 100 countries and has built a reputation for reliability and trustworthiness in the crypto space.</p>
+
+<h3>Security</h3>
+<p>Bitstamp employs industry-leading security measures including cold storage for the majority of funds, two-factor authentication, and regular security audits.</p>
+
+<h3>Regulation</h3>
+<p>As a licensed exchange in the EU, Bitstamp adheres to strict regulatory standards, providing users with additional protection and peace of mind.</p>
+
+<h3>Trading Platform</h3>
+<p>The platform offers a clean, intuitive interface suitable for both beginners and experienced traders, with real-time charts and order management.</p>
+
+<h3>Customer Support</h3>
+<p>Bitstamp provides responsive customer support through multiple channels, helping users resolve issues quickly and efficiently.</p>`,
         pros: [
             "Long-established and trusted",
             "Strong security measures",
@@ -171,12 +162,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             "Slower withdrawal times",
             "Limited advanced trading features",
         ],
-        features: [
-            { title: "Security", description: "Bitstamp employs industry-leading security measures including cold storage for the majority of funds, two-factor authentication, and regular security audits." },
-            { title: "Regulation", description: "As a licensed exchange in the EU, Bitstamp adheres to strict regulatory standards, providing users with additional protection and peace of mind." },
-            { title: "Trading Platform", description: "The platform offers a clean, intuitive interface suitable for both beginners and experienced traders, with real-time charts and order management." },
-            { title: "Customer Support", description: "Bitstamp provides responsive customer support through multiple channels, helping users resolve issues quickly and efficiently." },
-        ],
         averageRating: 4.5,
         ratingBreakdown: [
             { stars: 5, pct: "70%" },
@@ -184,22 +169,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { stars: 3, pct: "5%" },
             { stars: 2, pct: "3%" },
             { stars: 1, pct: "2%" },
-        ],
-        comments: [
-            {
-                author: "Michael Chen",
-                initials: "MC",
-                date: "September 5, 2024 at 2:45 pm",
-                rating: 5,
-                comment: "Bitstamp has been my primary exchange for years. The security and regulatory compliance give me confidence. The interface is clean and easy to use, though I wish they had more trading pairs available.",
-            },
-            {
-                author: "Emma Wilson",
-                initials: "EW",
-                date: "August 20, 2024 at 11:20 am",
-                rating: 4,
-                comment: "Solid exchange with good security. The fees are a bit higher than some competitors, but the peace of mind is worth it. Customer support has been helpful whenever I've needed assistance.",
-            },
         ],
         advantages: [
             "Regulated and licensed",
@@ -241,7 +210,19 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { label: "Regulation:", value: "CySEC, IFSC" },
             { label: "Bonus:", value: "Up to 120%" },
         ],
-        overview: "RoboForex has been serving traders since 2009, offering a comprehensive trading experience with multiple account types, advanced platforms, and a wide range of trading instruments. The broker is known for its competitive spreads, high leverage options, and generous bonus programs that cater to traders of all experience levels.",
+        content: `<p>RoboForex has been serving traders since 2009, offering a comprehensive trading experience with multiple account types, advanced platforms, and a wide range of trading instruments. The broker is known for its competitive spreads, high leverage options, and generous bonus programs that cater to traders of all experience levels.</p>
+
+<h3>Account Types</h3>
+<p>RoboForex offers five different account types to suit various trading styles and experience levels, from beginner-friendly options to advanced ECN accounts.</p>
+
+<h3>Trading Platforms</h3>
+<p>Traders can choose from industry-leading platforms including MetaTrader 4, MetaTrader 5, and cTrader, each offering unique features and tools.</p>
+
+<h3>Trading Instruments</h3>
+<p>Access to over 12,000 trading instruments including forex pairs, stocks, indices, commodities, and cryptocurrencies.</p>
+
+<h3>Bonus Programs</h3>
+<p>RoboForex offers various bonus programs including welcome bonuses, deposit bonuses, and cashback programs to enhance trading opportunities.</p>`,
         pros: [
             "Low minimum deposit",
             "High leverage options",
@@ -254,12 +235,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             "Limited educational resources",
             "Customer support varies by region",
         ],
-        features: [
-            { title: "Account Types", description: "RoboForex offers five different account types to suit various trading styles and experience levels, from beginner-friendly options to advanced ECN accounts." },
-            { title: "Trading Platforms", description: "Traders can choose from industry-leading platforms including MetaTrader 4, MetaTrader 5, and cTrader, each offering unique features and tools." },
-            { title: "Trading Instruments", description: "Access to over 12,000 trading instruments including forex pairs, stocks, indices, commodities, and cryptocurrencies." },
-            { title: "Bonus Programs", description: "RoboForex offers various bonus programs including welcome bonuses, deposit bonuses, and cashback programs to enhance trading opportunities." },
-        ],
         averageRating: 4.8,
         ratingBreakdown: [
             { stars: 5, pct: "80%" },
@@ -267,22 +242,6 @@ export const forexBrokersData: Record<string, BrokerData> = {
             { stars: 3, pct: "3%" },
             { stars: 2, pct: "1%" },
             { stars: 1, pct: "1%" },
-        ],
-        comments: [
-            {
-                author: "David Martinez",
-                initials: "DM",
-                date: "September 10, 2024 at 9:15 am",
-                rating: 5,
-                comment: "RoboForex has been excellent for my trading needs. The low minimum deposit allowed me to start small, and the variety of account types means I can upgrade as I grow. The bonus programs are a nice touch too.",
-            },
-            {
-                author: "Lisa Thompson",
-                initials: "LT",
-                date: "August 25, 2024 at 4:30 pm",
-                rating: 5,
-                comment: "Great broker with excellent platform options. I use MT5 and love the advanced features. The spreads are competitive and execution is fast. Highly recommend for serious traders.",
-            },
         ],
         advantages: [
             "Low minimum deposit",
@@ -328,7 +287,19 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { label: "Staking:", value: "Available" },
             { label: "NFT Marketplace:", value: "Available" },
         ],
-        overview: "Binance is the world's largest cryptocurrency exchange by trading volume, serving millions of users worldwide. The platform offers a comprehensive suite of trading services including spot trading, futures, margin trading, staking, and more. With over 600 trading pairs and advanced trading tools, Binance caters to both beginners and professional traders.",
+        content: `<p>Binance is the world's largest cryptocurrency exchange by trading volume, serving millions of users worldwide. The platform offers a comprehensive suite of trading services including spot trading, futures, margin trading, staking, and more. With over 600 trading pairs and advanced trading tools, Binance caters to both beginners and professional traders.</p>
+
+<h3>Spot Trading</h3>
+<p>Binance offers one of the largest selections of cryptocurrency trading pairs with competitive fees and high liquidity for optimal trading execution.</p>
+
+<h3>Futures Trading</h3>
+<p>Advanced futures trading platform with up to 125x leverage, allowing traders to profit from both rising and falling markets.</p>
+
+<h3>Staking</h3>
+<p>Earn passive income by staking various cryptocurrencies directly on the Binance platform with flexible and locked staking options.</p>
+
+<h3>Security</h3>
+<p>Binance employs industry-leading security measures including SAFU fund, two-factor authentication, and cold storage for user funds.</p>`,
         pros: [
             "Largest trading volume",
             "Low trading fees",
@@ -341,12 +312,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             "Regulatory concerns in some regions",
             "Customer support can be slow",
         ],
-        features: [
-            { title: "Spot Trading", description: "Binance offers one of the largest selections of cryptocurrency trading pairs with competitive fees and high liquidity for optimal trading execution." },
-            { title: "Futures Trading", description: "Advanced futures trading platform with up to 125x leverage, allowing traders to profit from both rising and falling markets." },
-            { title: "Staking", description: "Earn passive income by staking various cryptocurrencies directly on the Binance platform with flexible and locked staking options." },
-            { title: "Security", description: "Binance employs industry-leading security measures including SAFU fund, two-factor authentication, and cold storage for user funds." },
-        ],
         averageRating: 4.9,
         ratingBreakdown: [
             { stars: 5, pct: "85%" },
@@ -354,22 +319,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { stars: 3, pct: "3%" },
             { stars: 2, pct: "1%" },
             { stars: 1, pct: "1%" },
-        ],
-        comments: [
-            {
-                author: "John Doe",
-                initials: "JD",
-                date: "August 12, 2024 at 10:30 am",
-                rating: 5,
-                comment: "Binance has been my go-to exchange for years. The sheer volume of coins available and the liquidity is unmatched. The fees are also very reasonable, especially if you hold BNB. The mobile app is feature-rich but can be a bit overwhelming for beginners initially.",
-            },
-            {
-                author: "Sarah Anderson",
-                initials: "SA",
-                date: "July 28, 2024 at 3:15 pm",
-                rating: 4,
-                comment: "Good platform overall with great tools for technical analysis. However, customer support can be slow to respond during peak times. The P2P market is excellent for funding your account in regions where direct bank transfers are restricted.",
-            },
         ],
         advantages: [
             "Largest trading volume",
@@ -411,7 +360,19 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { label: "Regulation:", value: "EU Licensed" },
             { label: "Security:", value: "Cold Storage" },
         ],
-        overview: "Bitstamp has been operating since 2011, making it one of the oldest cryptocurrency exchanges in the world. The platform is known for its strong security measures, regulatory compliance, and user-friendly interface. It serves customers in over 100 countries and has built a reputation for reliability and trustworthiness in the crypto space.",
+        content: `<p>Bitstamp has been operating since 2011, making it one of the oldest cryptocurrency exchanges in the world. The platform is known for its strong security measures, regulatory compliance, and user-friendly interface. It serves customers in over 100 countries and has built a reputation for reliability and trustworthiness in the crypto space.</p>
+
+<h3>Security</h3>
+<p>Bitstamp employs industry-leading security measures including cold storage for the majority of funds, two-factor authentication, and regular security audits.</p>
+
+<h3>Regulation</h3>
+<p>As a licensed exchange in the EU, Bitstamp adheres to strict regulatory standards, providing users with additional protection and peace of mind.</p>
+
+<h3>Trading Platform</h3>
+<p>The platform offers a clean, intuitive interface suitable for both beginners and experienced traders, with real-time charts and order management.</p>
+
+<h3>Customer Support</h3>
+<p>Bitstamp provides responsive customer support through multiple channels, helping users resolve issues quickly and efficiently.</p>`,
         pros: [
             "Long-established and trusted",
             "Strong security measures",
@@ -425,12 +386,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             "Slower withdrawal times",
             "Limited advanced trading features",
         ],
-        features: [
-            { title: "Security", description: "Bitstamp employs industry-leading security measures including cold storage for the majority of funds, two-factor authentication, and regular security audits." },
-            { title: "Regulation", description: "As a licensed exchange in the EU, Bitstamp adheres to strict regulatory standards, providing users with additional protection and peace of mind." },
-            { title: "Trading Platform", description: "The platform offers a clean, intuitive interface suitable for both beginners and experienced traders, with real-time charts and order management." },
-            { title: "Customer Support", description: "Bitstamp provides responsive customer support through multiple channels, helping users resolve issues quickly and efficiently." },
-        ],
         averageRating: 4.5,
         ratingBreakdown: [
             { stars: 5, pct: "70%" },
@@ -438,22 +393,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { stars: 3, pct: "5%" },
             { stars: 2, pct: "3%" },
             { stars: 1, pct: "2%" },
-        ],
-        comments: [
-            {
-                author: "Michael Chen",
-                initials: "MC",
-                date: "September 5, 2024 at 2:45 pm",
-                rating: 5,
-                comment: "Bitstamp has been my primary exchange for years. The security and regulatory compliance give me confidence. The interface is clean and easy to use, though I wish they had more trading pairs available.",
-            },
-            {
-                author: "Emma Wilson",
-                initials: "EW",
-                date: "August 20, 2024 at 11:20 am",
-                rating: 4,
-                comment: "Solid exchange with good security. The fees are a bit higher than some competitors, but the peace of mind is worth it. Customer support has been helpful whenever I've needed assistance.",
-            },
         ],
         advantages: [
             "Regulated and licensed",
@@ -495,7 +434,19 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { label: "Regulation:", value: "US Licensed" },
             { label: "Insurance:", value: "FDIC Insured" },
         ],
-        overview: "Coinbase is one of the most trusted cryptocurrency exchanges in the United States, known for its user-friendly interface and strong regulatory compliance. The platform makes it easy for beginners to buy, sell, and store cryptocurrencies while also offering advanced trading features through Coinbase Pro for experienced traders.",
+        content: `<p>Coinbase is one of the most trusted cryptocurrency exchanges in the United States, known for its user-friendly interface and strong regulatory compliance. The platform makes it easy for beginners to buy, sell, and store cryptocurrencies while also offering advanced trading features through Coinbase Pro for experienced traders.</p>
+
+<h3>User-Friendly Interface</h3>
+<p>Coinbase's intuitive interface makes it easy for beginners to buy, sell, and manage their cryptocurrency portfolio with just a few clicks.</p>
+
+<h3>Security</h3>
+<p>Coinbase stores 98% of customer funds in cold storage and provides FDIC insurance for USD balances, offering peace of mind to users.</p>
+
+<h3>Coinbase Pro</h3>
+<p>Advanced traders can use Coinbase Pro for lower fees and more sophisticated trading tools while maintaining access to the same secure infrastructure.</p>
+
+<h3>Educational Resources</h3>
+<p>Coinbase offers extensive educational content through Coinbase Earn, helping users learn about cryptocurrencies while earning rewards.</p>`,
         pros: [
             "User-friendly interface",
             "Strong regulatory compliance",
@@ -508,12 +459,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             "Limited advanced features",
             "Slower customer support",
         ],
-        features: [
-            { title: "User-Friendly Interface", description: "Coinbase's intuitive interface makes it easy for beginners to buy, sell, and manage their cryptocurrency portfolio with just a few clicks." },
-            { title: "Security", description: "Coinbase stores 98% of customer funds in cold storage and provides FDIC insurance for USD balances, offering peace of mind to users." },
-            { title: "Coinbase Pro", description: "Advanced traders can use Coinbase Pro for lower fees and more sophisticated trading tools while maintaining access to the same secure infrastructure." },
-            { title: "Educational Resources", description: "Coinbase offers extensive educational content through Coinbase Earn, helping users learn about cryptocurrencies while earning rewards." },
-        ],
         averageRating: 4.7,
         ratingBreakdown: [
             { stars: 5, pct: "75%" },
@@ -521,22 +466,6 @@ export const cryptoExchangesData: Record<string, BrokerData> = {
             { stars: 3, pct: "4%" },
             { stars: 2, pct: "2%" },
             { stars: 1, pct: "1%" },
-        ],
-        comments: [
-            {
-                author: "Robert Johnson",
-                initials: "RJ",
-                date: "September 8, 2024 at 1:20 pm",
-                rating: 5,
-                comment: "Coinbase is perfect for beginners. The interface is so easy to use, and I feel secure knowing my funds are insured. The mobile app is excellent too. The fees are a bit high, but the peace of mind is worth it.",
-            },
-            {
-                author: "Jennifer Lee",
-                initials: "JL",
-                date: "August 30, 2024 at 10:45 am",
-                rating: 4,
-                comment: "Great platform for getting started with crypto. The educational resources are helpful, and I appreciate the regulatory compliance. I do wish the fees were lower, but overall it's a solid exchange.",
-            },
         ],
         advantages: [
             "Easy to use",
@@ -581,7 +510,19 @@ export const propFirmsData: Record<string, BrokerData> = {
             { label: "Profit Split:", value: "80% - 90%" },
             { label: "Payout Frequency:", value: "Weekly" },
         ],
-        overview: "FTMO (Funded Trading Markets Organization) is one of the leading proprietary trading firms, allowing traders to prove their skills through challenges and trade with company capital. With over 400,000 registered traders and millions in payouts, FTMO has established itself as a trusted name in the prop trading industry.",
+        content: `<p>FTMO (Funded Trading Markets Organization) is one of the leading proprietary trading firms, allowing traders to prove their skills through challenges and trade with company capital. With over 400,000 registered traders and millions in payouts, FTMO has established itself as a trusted name in the prop trading industry.</p>
+
+<h3>Challenge System</h3>
+<p>FTMO's two-step challenge system allows traders to prove their skills and gain access to funded accounts with company capital.</p>
+
+<h3>Profit Split</h3>
+<p>Traders can earn up to 90% of their profits, with the first payout available after just 4 trading days.</p>
+
+<h3>Account Sizes</h3>
+<p>Choose from account sizes ranging from $10,000 to $400,000, with the option to scale up after consistent performance.</p>
+
+<h3>Trading Rules</h3>
+<p>Clear and transparent trading rules with daily loss limits, maximum drawdown, and profit targets that are achievable for skilled traders.</p>`,
         pros: [
             "High profit split (up to 90%)",
             "Weekly payouts",
@@ -594,12 +535,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             "Strict trading rules",
             "Limited trading styles",
         ],
-        features: [
-            { title: "Challenge System", description: "FTMO's two-step challenge system allows traders to prove their skills and gain access to funded accounts with company capital." },
-            { title: "Profit Split", description: "Traders can earn up to 90% of their profits, with the first payout available after just 4 trading days." },
-            { title: "Account Sizes", description: "Choose from account sizes ranging from $10,000 to $400,000, with the option to scale up after consistent performance." },
-            { title: "Trading Rules", description: "Clear and transparent trading rules with daily loss limits, maximum drawdown, and profit targets that are achievable for skilled traders." },
-        ],
         averageRating: 4.9,
         ratingBreakdown: [
             { stars: 5, pct: "88%" },
@@ -607,22 +542,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             { stars: 3, pct: "2%" },
             { stars: 2, pct: "1%" },
             { stars: 1, pct: "1%" },
-        ],
-        comments: [
-            {
-                author: "Alex Rodriguez",
-                initials: "AR",
-                date: "September 12, 2024 at 3:30 pm",
-                rating: 5,
-                comment: "FTMO has changed my trading career. The challenge was fair, and once I passed, the payouts have been consistent and on time. The profit split is excellent, and the support team is always helpful. Highly recommend!",
-            },
-            {
-                author: "Maria Garcia",
-                initials: "MG",
-                date: "August 28, 2024 at 11:15 am",
-                rating: 5,
-                comment: "Best prop firm I've tried. The rules are clear, the platform is easy to use, and the weekly payouts are a game-changer. The scaling plan is also great - I've already increased my account size twice.",
-            },
         ],
         advantages: [
             "High profit split",
@@ -664,7 +583,19 @@ export const propFirmsData: Record<string, BrokerData> = {
             { label: "Profit Split:", value: "50% - 80%" },
             { label: "Payout Frequency:", value: "Monthly" },
         ],
-        overview: "The5ers is a proprietary trading firm that focuses on gradual account growth and risk management. The firm's unique Bootcamp program allows traders to start with smaller accounts and gradually scale up as they prove their consistency and profitability.",
+        content: `<p>The5ers is a proprietary trading firm that focuses on gradual account growth and risk management. The firm's unique Bootcamp program allows traders to start with smaller accounts and gradually scale up as they prove their consistency and profitability.</p>
+
+<h3>Bootcamp Program</h3>
+<p>The5ers' Bootcamp program allows traders to start with smaller accounts and gradually scale up, focusing on consistent growth rather than quick profits.</p>
+
+<h3>Risk Management</h3>
+<p>The firm emphasizes proper risk management with clear rules and guidelines to help traders develop sustainable trading strategies.</p>
+
+<h3>Scaling System</h3>
+<p>Traders can scale their accounts from $4,000 to $4,000,000 through consistent performance and meeting specific milestones.</p>
+
+<h3>Educational Support</h3>
+<p>The5ers provides educational resources and support to help traders improve their skills and succeed in the program.</p>`,
         pros: [
             "Lower challenge fees",
             "Gradual scaling system",
@@ -677,12 +608,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             "Monthly payouts only",
             "Longer scaling process",
         ],
-        features: [
-            { title: "Bootcamp Program", description: "The5ers' Bootcamp program allows traders to start with smaller accounts and gradually scale up, focusing on consistent growth rather than quick profits." },
-            { title: "Risk Management", description: "The firm emphasizes proper risk management with clear rules and guidelines to help traders develop sustainable trading strategies." },
-            { title: "Scaling System", description: "Traders can scale their accounts from $4,000 to $4,000,000 through consistent performance and meeting specific milestones." },
-            { title: "Educational Support", description: "The5ers provides educational resources and support to help traders improve their skills and succeed in the program." },
-        ],
         averageRating: 4.5,
         ratingBreakdown: [
             { stars: 5, pct: "72%" },
@@ -690,22 +615,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             { stars: 3, pct: "6%" },
             { stars: 2, pct: "2%" },
             { stars: 1, pct: "2%" },
-        ],
-        comments: [
-            {
-                author: "James Wilson",
-                initials: "JW",
-                date: "September 5, 2024 at 2:00 pm",
-                rating: 4,
-                comment: "The5ers is great for traders who want to focus on gradual growth. The lower fees are nice, and the scaling system is fair. The only downside is the monthly payouts, but overall it's a solid prop firm.",
-            },
-            {
-                author: "Sophie Brown",
-                initials: "SB",
-                date: "August 22, 2024 at 9:30 am",
-                rating: 5,
-                comment: "I love the gradual scaling approach. It's helped me become a more disciplined trader. The educational resources are also very helpful. Would recommend for traders who are patient and focused on long-term growth.",
-            },
         ],
         advantages: [
             "Lower challenge fees",
@@ -747,7 +656,19 @@ export const propFirmsData: Record<string, BrokerData> = {
             { label: "Profit Split:", value: "90%" },
             { label: "Payout Frequency:", value: "Weekly" },
         ],
-        overview: "TopStep is a leading proprietary trading firm specializing in futures trading. The firm's Trading Combine program allows traders to prove their skills and gain access to funded accounts. With a focus on futures markets, TopStep provides traders with the tools and capital needed to succeed in professional trading.",
+        content: `<p>TopStep is a leading proprietary trading firm specializing in futures trading. The firm's Trading Combine program allows traders to prove their skills and gain access to funded accounts. With a focus on futures markets, TopStep provides traders with the tools and capital needed to succeed in professional trading.</p>
+
+<h3>Trading Combine</h3>
+<p>TopStep's Trading Combine program allows traders to demonstrate their skills through simulated trading before receiving funded accounts.</p>
+
+<h3>Futures Focus</h3>
+<p>Specializing in futures markets, TopStep provides traders with access to a wide range of futures contracts and trading opportunities.</p>
+
+<h3>Trading Tools</h3>
+<p>TopStep provides innovative trading tools and analytics to help traders improve their performance and make informed decisions.</p>
+
+<h3>Community Support</h3>
+<p>The firm offers a strong community of traders with forums, webinars, and educational resources to support trader development.</p>`,
         pros: [
             "High profit split (90%)",
             "Weekly payouts",
@@ -760,12 +681,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             "Stricter drawdown rules",
             "Higher challenge fees",
         ],
-        features: [
-            { title: "Trading Combine", description: "TopStep's Trading Combine program allows traders to demonstrate their skills through simulated trading before receiving funded accounts." },
-            { title: "Futures Focus", description: "Specializing in futures markets, TopStep provides traders with access to a wide range of futures contracts and trading opportunities." },
-            { title: "Trading Tools", description: "TopStep provides innovative trading tools and analytics to help traders improve their performance and make informed decisions." },
-            { title: "Community Support", description: "The firm offers a strong community of traders with forums, webinars, and educational resources to support trader development." },
-        ],
         averageRating: 4.8,
         ratingBreakdown: [
             { stars: 5, pct: "82%" },
@@ -773,22 +688,6 @@ export const propFirmsData: Record<string, BrokerData> = {
             { stars: 3, pct: "3%" },
             { stars: 2, pct: "2%" },
             { stars: 1, pct: "1%" },
-        ],
-        comments: [
-            {
-                author: "Daniel Kim",
-                initials: "DK",
-                date: "September 15, 2024 at 4:45 pm",
-                rating: 5,
-                comment: "TopStep is excellent for futures traders. The tools are great, and the 90% profit split is fantastic. The weekly payouts are reliable, and the community support is very helpful. Highly recommend for serious futures traders.",
-            },
-            {
-                author: "Rachel Green",
-                initials: "RG",
-                date: "September 1, 2024 at 1:20 pm",
-                rating: 5,
-                comment: "Love the futures focus and the trading tools provided. The drawdown rules are strict but fair. The community is very supportive, and I've learned a lot from the webinars and forums.",
-            },
         ],
         advantages: [
             "High profit split",
@@ -815,4 +714,3 @@ export function getBrokerData(type: "forex" | "crypto" | "prop", slug: string): 
     }
     return null;
 }
-

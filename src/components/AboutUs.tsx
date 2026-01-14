@@ -19,9 +19,7 @@ export function AboutUs() {
                             Trusted by Over 66,000 Traders Worldwide, TRADEXY Excels.
                         </h2>
                         <p className="text-gray-600 dark:text-gray-300 mb-8 text-sm md:text-base">
-                            Join over 66,000 traders worldwide who trust TRADEXY for reliable
-                            trading signals, expert analysis, and a secure trading
-                            environment.
+                        We provide independent Forex & CFD broker reviews based on real account testing, transparent comparison, and hands-on market experience.
                         </p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                             <div className="flex gap-4">

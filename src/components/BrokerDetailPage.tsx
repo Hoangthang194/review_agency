@@ -1,14 +1,102 @@
 "use client";
 
+import { useRef, useEffect } from "react";
 import { PageHero } from "./PageHero";
 import Link from "next/link";
 import Image from "next/image";
+import { ExternalImage } from "./ExternalImage";
 import { BrokerData, forexBrokersData, cryptoExchangesData, propFirmsData } from "@/data/mockData";
 
 interface BrokerDetailPageProps {
     data: BrokerData;
     type: "forex" | "crypto" | "prop";
     backgroundImage?: string;
+}
+
+// Component to render HTML content with script execution support
+function ContentRenderer({ 
+    html, 
+    onRender, 
+    processHeadings = false 
+}: { 
+    html: string; 
+    onRender: (html: string, container: HTMLDivElement) => void;
+    processHeadings?: boolean;
+}) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const lastHtmlRef = useRef<string>('');
+
+    useEffect(() => {
+        if (!containerRef.current || !html || html === lastHtmlRef.current) return;
+        
+        lastHtmlRef.current = html;
+        
+        // Process content to add IDs to headings if needed
+        let processedContent = html;
+        if (processHeadings) {
+            const headingRegex = /<(h[2-4])([^>]*)>(.*?)<\/h[2-4]>/gi;
+            const processedIds = new Set<string>();
+            let idCounter = 0;
+            
+            processedContent = processedContent.replace(headingRegex, (match, tag, attrs, text) => {
+                // Extract text content (remove HTML tags using regex)
+                const textContent = text.replace(/<[^>]*>/g, '').trim();
+                
+                // Generate ID from text
+                let id = textContent
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                
+                // If ID is empty or already exists, add counter
+                if (!id) {
+                    id = `heading-${idCounter++}`;
+                } else if (processedIds.has(id)) {
+                    id = `${id}-${idCounter++}`;
+                }
+                
+                processedIds.add(id);
+                
+                // Check if attrs already has id
+                const hasId = /id\s*=\s*["']([^"']+)["']/i.test(attrs);
+                if (!hasId) {
+                    return `<${tag}${attrs} id="${id}" data-heading-id="${id}">${text}</${tag}>`;
+                } else {
+                    // Extract existing ID and use it
+                    const existingIdMatch = attrs.match(/id\s*=\s*["']([^"']+)["']/i);
+                    const existingId = existingIdMatch ? existingIdMatch[1] : id;
+                    return `<${tag}${attrs} data-heading-id="${existingId}">${text}</${tag}>`;
+                }
+            });
+        }
+        
+        // Render HTML with script execution
+        if (containerRef.current) {
+            onRender(processedContent, containerRef.current);
+        }
+    }, [html, processHeadings, onRender]);
+
+    return (
+        <div
+            ref={containerRef}
+            className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-secondary-text dark:text-secondary-text-dark leading-relaxed
+                prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
+                prose-h1:text-3xl prose-h1:mb-4 prose-h1:mt-8 prose-h1:border-b prose-h1:border-gray-200 dark:prose-h1:border-gray-700 prose-h1:pb-2
+                prose-h2:text-2xl prose-h2:mb-3 prose-h2:mt-6 prose-h2:border-b prose-h2:border-gray-200 dark:prose-h2:border-gray-700 prose-h2:pb-2
+                prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-6 prose-h3:font-semibold
+                prose-h4:text-lg prose-h4:mb-2 prose-h4:mt-4 prose-h4:font-semibold
+                prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:mb-4 prose-p:leading-relaxed
+                prose-ul:text-gray-600 dark:prose-ul:text-gray-300 prose-ul:mb-4 prose-ul:ml-4
+                prose-ol:text-gray-600 dark:prose-ol:text-gray-300 prose-ol:mb-4 prose-ol:ml-4
+                prose-li:text-gray-600 dark:prose-li:text-gray-300 prose-li:mb-2
+                prose-strong:text-gray-900 dark:prose-strong:text-white prose-strong:font-semibold
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                prose-img:rounded-lg prose-img:shadow-md prose-img:my-4
+                prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic
+                prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+                prose-pre:bg-gray-900 dark:prose-pre:bg-gray-800 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4"
+        />
+    );
 }
 
 export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPageProps) {
@@ -51,6 +139,187 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
         ));
     };
 
+    // Function to execute scripts in HTML content
+    const executeScripts = (container: HTMLElement) => {
+        // Find all script tags in the container
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach((oldScript) => {
+            // Create new script element
+            const newScript = document.createElement('script');
+            
+            // Copy attributes
+            Array.from(oldScript.attributes).forEach((attr) => {
+                newScript.setAttribute(attr.name, attr.value);
+            });
+            
+            // Copy script content
+            if (oldScript.src) {
+                newScript.src = oldScript.src;
+            } else {
+                newScript.textContent = oldScript.textContent;
+            }
+            
+            // Replace old script with new one (this triggers execution)
+            if (oldScript.parentNode) {
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            }
+        });
+    };
+
+    // Function to normalize and attach event handlers
+    const attachEventHandlers = (container: HTMLElement) => {
+        // Find all elements with event handlers that haven't been processed yet
+        const allElements = container.querySelectorAll('*:not([data-handlers-attached])');
+        
+        allElements.forEach((element) => {
+            const htmlElement = element as HTMLElement;
+            
+            // Check all possible event handler attributes (both JSX and HTML format)
+            const eventHandlerPairs = [
+                ['onClick', 'onclick'],
+                ['onChange', 'onchange'],
+                ['onSubmit', 'onsubmit'],
+                ['onMouseOver', 'onmouseover'],
+                ['onMouseOut', 'onmouseout'],
+                ['onFocus', 'onfocus'],
+                ['onBlur', 'onblur'],
+                ['onKeyDown', 'onkeydown'],
+                ['onKeyUp', 'onkeyup'],
+                ['onKeyPress', 'onkeypress'],
+                ['onLoad', 'onload'],
+                ['onError', 'onerror'],
+                ['onDoubleClick', 'ondblclick']
+            ];
+            
+            eventHandlerPairs.forEach(([jsxName, htmlName]) => {
+                // Check if element has JSX format handler
+                let handlerValue = htmlElement.getAttribute(jsxName);
+                const hasJsxHandler = !!handlerValue;
+                
+                // If no JSX handler, check HTML format
+                if (!handlerValue) {
+                    handlerValue = htmlElement.getAttribute(htmlName);
+                }
+                
+                if (handlerValue) {
+                    // Remove JSX format if exists
+                    if (hasJsxHandler) {
+                        htmlElement.removeAttribute(jsxName);
+                    }
+                    
+                    // Process handler value - handle both string and JSX arrow function format
+                    let processedValue = handlerValue.trim();
+                    
+                    // If it's JSX arrow function format: onClick={() => console.log("haha")}
+                    // Convert to: onclick="console.log('haha')"
+                    if (processedValue.startsWith('() => ') || processedValue.startsWith('()=>')) {
+                        // Extract the body of the arrow function
+                        const arrowMatch = processedValue.match(/\(\)\s*=>\s*(.+)/);
+                        if (arrowMatch) {
+                            processedValue = arrowMatch[1].trim();
+                            
+                            // Remove surrounding braces if present
+                            if (processedValue.startsWith('{') && processedValue.endsWith('}')) {
+                                processedValue = processedValue.slice(1, -1).trim();
+                            }
+                        }
+                    }
+                    // If it starts with { (JSX expression), extract content
+                    else if (processedValue.startsWith('{') && processedValue.endsWith('}')) {
+                        processedValue = processedValue.slice(1, -1).trim();
+                    }
+                    // If it's wrapped in quotes, unwrap it
+                    else if (
+                        (processedValue.startsWith('"') && processedValue.endsWith('"')) ||
+                        (processedValue.startsWith("'") && processedValue.endsWith("'"))
+                    ) {
+                        processedValue = processedValue.slice(1, -1);
+                    }
+                    
+                    // Convert double quotes to single quotes in JavaScript code to avoid escaping issues
+                    // This ensures: console.log("haha") becomes console.log('haha')
+                    processedValue = processedValue.replace(/"/g, "'");
+                    
+                    // Remove any existing inline handler first to prevent duplicate execution
+                    htmlElement.removeAttribute(htmlName);
+                    
+                    // Use addEventListener instead of inline handlers to avoid duplicate execution
+                    const eventName = htmlName.replace('on', '').toLowerCase();
+                    
+                    try {
+                        // Create a function from the handler string and attach as event listener
+                        // This is more reliable than inline handlers and prevents duplicates
+                        const handlerFunction = new Function('event', processedValue);
+                        htmlElement.addEventListener(eventName, handlerFunction as EventListener);
+                        
+                        // Mark this element as processed to avoid duplicate attachments
+                        htmlElement.setAttribute('data-handlers-attached', 'true');
+                    } catch (error) {
+                        console.warn(`Failed to attach event handler ${htmlName}:`, error, 'Value:', processedValue);
+                        // Mark as processed even on error to avoid retrying
+                        htmlElement.setAttribute('data-handlers-attached', 'true');
+                    }
+                }
+            });
+        });
+    };
+
+    // Function to render HTML with script execution support
+    const renderHtmlWithScripts = (html: string, container: HTMLDivElement) => {
+        if (!container) return;
+
+        // First, normalize JSX-style event handlers to HTML format
+        let normalizedHtml = html;
+        
+        // Convert JSX onClick={...} to HTML onclick="..."
+        // Pattern: onClick={() => console.log("haha")} or onClick="console.log('haha')"
+        normalizedHtml = normalizedHtml.replace(
+            /onClick\s*=\s*{\(\)\s*=>\s*([^}]+)}/g,
+            (match, body) => {
+                // Extract the function body
+                let handlerBody = body.trim();
+                // Remove surrounding braces if present
+                if (handlerBody.startsWith('{') && handlerBody.endsWith('}')) {
+                    handlerBody = handlerBody.slice(1, -1).trim();
+                }
+                // Convert double quotes to single quotes to avoid HTML escaping issues
+                handlerBody = handlerBody.replace(/"/g, "'");
+                // Use double quotes wrapper (handlerBody now uses single quotes)
+                return `onclick="${handlerBody}"`;
+            }
+        );
+        
+        // Convert onClick={...} (without arrow function) to onclick="..."
+        normalizedHtml = normalizedHtml.replace(
+            /onClick\s*=\s*{([^}]+)}/g,
+            (match, body) => {
+                let handlerBody = body.trim();
+                // Convert double quotes to single quotes
+                handlerBody = handlerBody.replace(/"/g, "'");
+                return `onclick="${handlerBody}"`;
+            }
+        );
+        
+        // Convert onClick="..." to onclick="..." (already in HTML format, just lowercase)
+        normalizedHtml = normalizedHtml.replace(/onClick\s*=\s*"([^"]+)"/g, (match, value) => {
+            // Convert double quotes to single quotes in the value
+            const converted = value.replace(/"/g, "'");
+            return `onclick="${converted}"`;
+        });
+        normalizedHtml = normalizedHtml.replace(/onClick\s*=\s*'([^']+)'/g, "onclick='$1'");
+
+        // Set innerHTML
+        container.innerHTML = normalizedHtml;
+        
+        // Attach event handlers and execute scripts after a small delay
+        setTimeout(() => {
+            if (container) {
+                attachEventHandlers(container);
+                executeScripts(container);
+            }
+        }, 10);
+    };
+
     return (
         <>
             <PageHero
@@ -69,13 +338,23 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                         <div className="flex-shrink-0">
                             {data.logo ? (
                                 <div className={`w-24 h-24 ${data.logoBg || "bg-black"} rounded-xl flex items-center justify-center p-2 shadow-inner overflow-hidden`}>
-                                    <Image
-                                        src={data.logo}
-                                        alt={data.name}
-                                        width={80}
-                                        height={80}
-                                        className="object-contain"
-                                    />
+                                    {data.logo.startsWith("http://") || data.logo.startsWith("https://") ? (
+                                        <ExternalImage
+                                            src={data.logo}
+                                            alt={data.name}
+                                            width={80}
+                                            height={80}
+                                            className="object-contain"
+                                        />
+                                    ) : (
+                                        <Image
+                                            src={data.logo}
+                                            alt={data.name}
+                                            width={80}
+                                            height={80}
+                                            className="object-contain"
+                                        />
+                                    )}
                                 </div>
                             ) : (
                                 <div className={`w-24 h-24 ${data.logoBg || "bg-black"} rounded-xl flex items-center justify-center p-2 shadow-inner`}>
@@ -88,7 +367,7 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                 {renderStars(data.rating)}
                             </div>
                             <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
-                                {data.reviews.toLocaleString()}+ Reviews
+                                {data.reviews.toLocaleString('en-US')}+ Reviews
                             </p>
                         </div>
                         <div className="flex-grow">
@@ -240,17 +519,11 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                         </div>
 
                         <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                            <div className="prose dark:prose-invert max-w-none text-secondary-text dark:text-secondary-text-dark text-sm leading-relaxed">
-                                <p className="mb-4">{data.overview}</p>
-                                {data.features.map((feature, i) => (
-                                    <div key={i}>
-                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-3">
-                                            {feature.title}
-                                        </h3>
-                                        <p className="mb-4">{feature.description}</p>
-                                    </div>
-                                ))}
-                            </div>
+                            <ContentRenderer
+                                html={data.content}
+                                onRender={renderHtmlWithScripts}
+                                processHeadings={true}
+                            />
                         </section>
 
                         <section className="bg-surface-light dark:bg-card-dark rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
@@ -267,7 +540,7 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                         {renderStars(data.averageRating)}
                                     </div>
                                     <span className="text-xs text-blue-100">
-                                        {data.comments.length} Rating
+                                        {data.reviews.toLocaleString('en-US')}+ Ratings
                                     </span>
                                 </div>
                                 <div className="flex-grow w-full space-y-3">
@@ -302,7 +575,7 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                 {renderStars(data.averageRating)}
                             </div>
                             <p className="text-sm font-medium opacity-90">
-                                {data.comments.length} Ratings
+                                {data.reviews.toLocaleString('en-US')}+ Ratings
                             </p>
                         </div>
 
@@ -373,13 +646,23 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                         <div className="flex items-start gap-4 mb-4">
                                             {broker.logo ? (
                                                 <div className={`w-16 h-16 ${broker.logoBg || "bg-black"} rounded-lg flex items-center justify-center p-2 shadow-inner overflow-hidden flex-shrink-0`}>
-                                                    <Image
-                                                        src={broker.logo}
-                                                        alt={broker.name}
-                                                        width={56}
-                                                        height={56}
-                                                        className="object-contain"
-                                                    />
+                                                    {broker.logo.startsWith("http://") || broker.logo.startsWith("https://") ? (
+                                                        <ExternalImage
+                                                            src={broker.logo}
+                                                            alt={broker.name}
+                                                            width={56}
+                                                            height={56}
+                                                            className="object-contain"
+                                                        />
+                                                    ) : (
+                                                        <Image
+                                                            src={broker.logo}
+                                                            alt={broker.name}
+                                                            width={56}
+                                                            height={56}
+                                                            className="object-contain"
+                                                        />
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <div className={`w-16 h-16 ${broker.logoBg || "bg-black"} rounded-lg flex items-center justify-center p-2 shadow-inner flex-shrink-0`}>
@@ -396,7 +679,7 @@ export function BrokerDetailPage({ data, type, backgroundImage }: BrokerDetailPa
                                                     <div className="flex text-yellow-400">
                                                         {renderStars(broker.rating)}
                                                     </div>
-                                                    <span>({broker.reviews.toLocaleString()}+ Reviews)</span>
+                                                    <span>({broker.reviews.toLocaleString('en-US')}+ Reviews)</span>
                                                 </div>
                                             </div>
                                         </div>

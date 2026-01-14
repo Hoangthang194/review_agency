@@ -1,82 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useUsers, createUser, updateUser, changeUserPassword, UserType } from "@/hooks";
 
-interface Account {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  status: "active" | "locked" | "suspended";
-  createdAt: string;
-  lastLogin: string;
-}
+// Helper function to convert API role to display name
+const getRoleDisplayName = (role: string): string => {
+  const roleMap: Record<string, string> = {
+    admin: "Administrator",
+    editor: "Editor",
+    writer: "Writer",
+    reviewer: "Reviewer",
+  };
+  return roleMap[role] || role;
+};
 
-// Mock data - replace with actual API calls
-const initialAccounts: Account[] = [
-  {
-    id: "1",
-    email: "admin@review.com",
-    name: "Admin User",
-    role: "Administrator",
-    status: "active",
-    createdAt: "2024-01-15",
-    lastLogin: "2024-09-20",
-  },
-  {
-    id: "2",
-    email: "editor@review.com",
-    name: "Editor User",
-    role: "Editor",
-    status: "active",
-    createdAt: "2024-02-20",
-    lastLogin: "2024-09-19",
-  },
-  {
-    id: "3",
-    email: "writer@review.com",
-    name: "Writer User",
-    role: "Writer",
-    status: "locked",
-    createdAt: "2024-03-10",
-    lastLogin: "2024-09-18",
-  },
-  {
-    id: "4",
-    email: "reviewer@review.com",
-    name: "Reviewer User",
-    role: "Reviewer",
-    status: "active",
-    createdAt: "2024-04-05",
-    lastLogin: "2024-09-20",
-  },
-];
+// Helper function to convert display name to API role
+const getRoleFromDisplayName = (displayName: string): string => {
+  const reverseMap: Record<string, string> = {
+    Administrator: "admin",
+    Editor: "editor",
+    Writer: "writer",
+    Reviewer: "reviewer",
+  };
+  return reverseMap[displayName] || displayName.toLowerCase();
+};
 
 export default function AccountsPage() {
-  const [accounts, setAccounts] = useState<Account[]>(initialAccounts);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [showForm, setShowForm] = useState(false);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
-  const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [formData, setFormData] = useState<Partial<Account>>({
+  const [selectedAccount, setSelectedAccount] = useState<UserType | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [formData, setFormData] = useState<{
+    email: string;
+    name: string;
+    role: string;
+    status: string;
+    password?: string;
+  }>({
     email: "",
     name: "",
     role: "Editor",
     status: "active",
+    password: "",
   });
   const [passwordData, setPasswordData] = useState({
     newPassword: "",
     confirmPassword: "",
   });
 
-  const filteredAccounts = accounts.filter((account) => {
-    const matchesSearch =
-      account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === "all" || account.status === selectedStatus;
-    return matchesSearch && matchesStatus;
+  const { data: users, loading, error: fetchError, refetch } = useUsers({
+    status: selectedStatus !== "all" ? selectedStatus : undefined,
   });
+
+  const filteredAccounts = useMemo(() => {
+    if (!users || users.length === 0) return [];
+
+    return users.filter((user) => {
+      const matchesSearch =
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  }, [users, searchTerm]);
 
   const handleAddNew = () => {
     setSelectedAccount(null);
@@ -85,73 +73,115 @@ export default function AccountsPage() {
       name: "",
       role: "Editor",
       status: "active",
+      password: "",
     });
+    setError("");
     setShowForm(true);
   };
 
-  const handleEdit = (account: Account) => {
+  const handleEdit = (account: UserType) => {
     setSelectedAccount(account);
-    setFormData(account);
+    setFormData({
+      email: account.email,
+      name: account.name,
+      role: getRoleDisplayName(account.role),
+      status: account.status,
+    });
+    setError("");
     setShowForm(true);
   };
 
-  const handleLockUnlock = (account: Account) => {
-    setAccounts(
-      accounts.map((a) =>
-        a.id === account.id
-          ? {
-              ...a,
-              status: a.status === "locked" ? "active" : "locked",
-            }
-          : a
-      )
-    );
+  const handleLockUnlock = async (account: UserType) => {
+    try {
+      const newStatus = account.status === "locked" ? "active" : "locked";
+      await updateUser(account.id, { status: newStatus });
+      await refetch();
+    } catch (err: any) {
+      setError(err.message || "Failed to update account status");
+      console.error("Update status error:", err);
+    }
   };
 
-  const handleChangePassword = (account: Account) => {
+  const handleChangePassword = (account: UserType) => {
     setSelectedAccount(account);
     setPasswordData({ newPassword: "", confirmPassword: "" });
+    setError("");
     setShowPasswordDialog(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (selectedAccount) {
-      // Update existing account
-      setAccounts(
-        accounts.map((a) =>
-          a.id === selectedAccount.id ? { ...formData, id: selectedAccount.id } as Account : a
-        )
-      );
-    } else {
-      // Add new account
-      const newAccount: Account = {
-        ...formData,
-        id: Date.now().toString(),
-        createdAt: new Date().toISOString().split("T")[0],
-        lastLogin: "Never",
-      } as Account;
-      setAccounts([...accounts, newAccount]);
+    setError("");
+    setSaving(true);
+
+    try {
+      if (selectedAccount) {
+        // Update existing account
+        const updateData: Partial<UserType> = {
+          email: formData.email,
+          name: formData.name,
+          role: getRoleFromDisplayName(formData.role) as any,
+          status: formData.status as any,
+        };
+        await updateUser(selectedAccount.id, updateData);
+      } else {
+        // Create new account
+        if (!formData.password) {
+          setError("Password is required for new accounts");
+          setSaving(false);
+          return;
+        }
+        await createUser({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          role: getRoleFromDisplayName(formData.role),
+          status: formData.status as any,
+        });
+      }
+      setShowForm(false);
+      setSelectedAccount(null);
+      await refetch();
+    } catch (err: any) {
+      setError(err.message || "Error saving account");
+      console.error("Save error:", err);
+    } finally {
+      setSaving(false);
     }
-    setShowForm(false);
-    setSelectedAccount(null);
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
+
     if (passwordData.newPassword.length < 8) {
-      alert("Password must be at least 8 characters!");
+      setError("Password must be at least 8 characters!");
       return;
     }
-    // Update password logic here
-    alert("Password changed successfully!");
-    setShowPasswordDialog(false);
-    setPasswordData({ newPassword: "", confirmPassword: "" });
-    setSelectedAccount(null);
+
+    if (!selectedAccount) {
+      setError("No account selected");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      await changeUserPassword(selectedAccount.id, passwordData.newPassword);
+      setShowPasswordDialog(false);
+      setPasswordData({ newPassword: "", confirmPassword: "" });
+      setSelectedAccount(null);
+    } catch (err: any) {
+      setError(err.message || "Failed to change password");
+      console.error("Change password error:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -168,15 +198,28 @@ export default function AccountsPage() {
   };
 
   const getRoleColor = (role: string) => {
-    switch (role) {
+    const displayRole = getRoleDisplayName(role);
+    switch (displayRole) {
       case "Administrator":
         return "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400";
       case "Editor":
         return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400";
+      case "Writer":
+        return "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400";
+      case "Reviewer":
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400";
     }
   };
+
+  if (loading && !users) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -198,6 +241,15 @@ export default function AccountsPage() {
           Create Account
         </button>
       </div>
+
+      {/* Error Message */}
+      {(error || fetchError) && (
+        <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {error || fetchError?.message || "An error occurred"}
+          </p>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6">
@@ -236,123 +288,131 @@ export default function AccountsPage() {
 
       {/* Accounts Table */}
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Last Login
-                </th>
-                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredAccounts.map((account) => (
-                <tr
-                  key={account.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
-                        <span className="material-icons-outlined text-blue-600 dark:text-blue-400">
-                          person
-                        </span>
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {account.name}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {account.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(
-                        account.role
-                      )}`}
-                    >
-                      {account.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        account.status
-                      )}`}
-                    >
-                      {account.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                    {account.createdAt}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                    {account.lastLogin}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => handleEdit(account)}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
-                        title="Edit"
-                      >
-                        <span className="material-icons-outlined text-sm">edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleChangePassword(account)}
-                        className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded"
-                        title="Change Password"
-                      >
-                        <span className="material-icons-outlined text-sm">lock_reset</span>
-                      </button>
-                      <button
-                        onClick={() => handleLockUnlock(account)}
-                        className={`p-2 rounded ${
-                          account.status === "locked"
-                            ? "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
-                            : "text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
-                        }`}
-                        title={account.status === "locked" ? "Unlock" : "Lock"}
-                      >
-                        <span className="material-icons-outlined text-sm">
-                          {account.status === "locked" ? "lock_open" : "lock"}
-                        </span>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {filteredAccounts.length === 0 && (
+        {loading ? (
           <div className="p-12 text-center">
-            <span className="material-icons-outlined text-gray-400 text-5xl mb-4">
-              person_off
-            </span>
-            <p className="text-gray-600 dark:text-gray-400">
-              No accounts found matching your search.
-            </p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      User
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Role
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Created
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Last Login
+                    </th>
+                    <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredAccounts.map((account) => (
+                    <tr
+                      key={account.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center">
+                            <span className="material-icons-outlined text-blue-600 dark:text-blue-400">
+                              person
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-semibold text-gray-900 dark:text-white">
+                              {account.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {account.email}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getRoleColor(
+                            account.role
+                          )}`}
+                        >
+                          {getRoleDisplayName(account.role)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                            account.status
+                          )}`}
+                        >
+                          {account.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                        {account.created_at}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                        {account.last_login || "Never"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(account)}
+                            className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded"
+                            title="Edit"
+                          >
+                            <span className="material-icons-outlined text-sm">edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleChangePassword(account)}
+                            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 p-2 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded"
+                            title="Change Password"
+                          >
+                            <span className="material-icons-outlined text-sm">lock_reset</span>
+                          </button>
+                          <button
+                            onClick={() => handleLockUnlock(account)}
+                            className={`p-2 rounded ${
+                              account.status === "locked"
+                                ? "text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+                                : "text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            }`}
+                            title={account.status === "locked" ? "Unlock" : "Lock"}
+                          >
+                            <span className="material-icons-outlined text-sm">
+                              {account.status === "locked" ? "lock_open" : "lock"}
+                            </span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredAccounts.length === 0 && (
+              <div className="p-12 text-center">
+                <span className="material-icons-outlined text-gray-400 text-5xl mb-4">
+                  person_off
+                </span>
+                <p className="text-gray-600 dark:text-gray-400">
+                  No accounts found matching your search.
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -372,6 +432,11 @@ export default function AccountsPage() {
               </button>
             </div>
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              {error && (
+                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Name *
@@ -396,6 +461,22 @@ export default function AccountsPage() {
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
+              {!selectedAccount && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    required={!selectedAccount}
+                    value={formData.password || ""}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    minLength={8}
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Minimum 8 characters"
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Role *
@@ -422,7 +503,7 @@ export default function AccountsPage() {
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      status: e.target.value as "active" | "locked" | "suspended",
+                      status: e.target.value,
                     })
                   }
                   className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -437,14 +518,16 @@ export default function AccountsPage() {
                   type="button"
                   onClick={() => setShowForm(false)}
                   className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                  disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={saving}
                 >
-                  {selectedAccount ? "Update" : "Create"}
+                  {saving ? "Saving..." : selectedAccount ? "Update" : "Create"}
                 </button>
               </div>
             </form>
@@ -464,6 +547,7 @@ export default function AccountsPage() {
                 onClick={() => {
                   setShowPasswordDialog(false);
                   setSelectedAccount(null);
+                  setError("");
                 }}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
@@ -471,6 +555,11 @@ export default function AccountsPage() {
               </button>
             </div>
             <form onSubmit={handlePasswordSubmit} className="p-6 space-y-4">
+              {error && (
+                <div className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
+                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+                </div>
+              )}
               <div className="mb-4">
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   Changing password for: <strong>{selectedAccount.email}</strong>
@@ -514,16 +603,19 @@ export default function AccountsPage() {
                   onClick={() => {
                     setShowPasswordDialog(false);
                     setSelectedAccount(null);
+                    setError("");
                   }}
                   className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                  disabled={saving}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200"
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={saving}
                 >
-                  Change Password
+                  {saving ? "Changing..." : "Change Password"}
                 </button>
               </div>
             </form>
@@ -533,4 +625,3 @@ export default function AccountsPage() {
     </div>
   );
 }
-

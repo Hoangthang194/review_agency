@@ -3,8 +3,428 @@
 import { MarketSidebar } from "./MarketSidebar";
 import { MarketChart } from "./MarketChart";
 import { TechnicalAnalysis } from "./TechnicalAnalysis";
-import { technicalAnalysisData } from "@/data/technicalAnalysis";
-import { useState } from "react";
+import { technicalAnalysisData as fallbackTechnicalAnalysis } from "@/data/technicalAnalysis";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { useCryptoChartData } from "@/hooks/useMarketData";
+import { useForexChartData } from "@/hooks/useForexData";
+import { useStockChartData } from "@/hooks/useStockData";
+import { calculateTechnicalAnalysis, formatChartDate } from "@/utils/technicalAnalysis";
+import { ChartDataPoint as CoinGeckoChartDataPoint } from "@/hooks/useCoinGecko";
+import React from "react";
+
+// Component to manage crypto chart and real-time analysis
+function CryptoSectionWithAnalysis({ item }: { item: MarketData }) {
+    const [realTimeAnalysis, setRealTimeAnalysis] = useState<any | null>(null);
+    const fallbackAnalysis = fallbackTechnicalAnalysis[item.symbol];
+    
+    const handleAnalysisReady = (analysis: any) => {
+        setRealTimeAnalysis(analysis);
+    };
+    
+    return (
+        <>
+            <CryptoChartWrapper 
+                symbol={item.symbol} 
+                marketItem={item}
+                onAnalysisReady={handleAnalysisReady}
+            />
+            <div className="p-6">
+                {realTimeAnalysis ? (
+                    <TechnicalAnalysis marketData={item} analysisData={realTimeAnalysis} />
+                ) : (
+                    <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Calculating technical analysis...</p>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
+
+// Component to fetch and display crypto chart data
+function CryptoChartWrapper({ 
+    symbol, 
+    marketItem, 
+    onAnalysisReady 
+}: { 
+    symbol: string; 
+    marketItem: MarketData;
+    onAnalysisReady?: (analysis: any) => void;
+}) {
+    // Fetch 24 hours of hourly data (days=1 gives hourly data from CoinGecko)
+    const days = 1; // 1 day = hourly data
+    const { data: chartData, loading: chartLoading } = useCryptoChartData(symbol, days);
+    
+    // Calculate technical analysis from real-time data
+    const realTimeAnalysis = useMemo(() => {
+        if (!chartData || chartData.length === 0) {
+            return fallbackTechnicalAnalysis[symbol] || null;
+        }
+        
+        // Get latest price and date
+        const latestData = chartData[chartData.length - 1];
+        const dataDate = new Date(latestData.timestamp);
+        
+        return calculateTechnicalAnalysis(
+            chartData,
+            symbol,
+            marketItem.price,
+            dataDate,
+            marketItem.type // Pass type to handle formatting correctly
+        );
+    }, [chartData, symbol, marketItem.price, marketItem.type]);
+    
+    // Notify parent component when analysis is ready
+    useEffect(() => {
+        if (realTimeAnalysis && onAnalysisReady) {
+            onAnalysisReady(realTimeAnalysis);
+        }
+    }, [realTimeAnalysis, onAnalysisReady]);
+    
+    // Get data date range for display
+    const dataDateRange = useMemo(() => {
+        if (!chartData || chartData.length === 0) return null;
+        
+        const firstDate = new Date(chartData[0].timestamp);
+        const lastDate = new Date(chartData[chartData.length - 1].timestamp);
+        
+        return {
+            from: formatChartDate(firstDate.getTime()),
+            to: formatChartDate(lastDate.getTime()),
+        };
+    }, [chartData]);
+    
+    return (
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    24h Price Chart
+                </h3>
+                {dataDateRange && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="material-icons-outlined text-xs align-middle mr-1">schedule</span>
+                        Data: {dataDateRange.from.split(',')[0]} - {dataDateRange.to.split(',')[0]}
+                        <span className="ml-2 text-green-500">●</span> Live
+                    </div>
+                )}
+            </div>
+            {chartLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Loading chart...</p>
+                    </div>
+                </div>
+            ) : (
+                <MarketChart 
+                    marketData={[marketItem]} 
+                    selectedSymbol={symbol}
+                    coinGeckoData={marketItem.type === "crypto" ? chartData : undefined}
+                    days={marketItem.type === "crypto" ? days : undefined}
+                />
+            )}
+        </div>
+    );
+}
+
+// Component to fetch and display forex chart data
+function ForexChartWrapper({ 
+    symbol, 
+    marketItem, 
+    onAnalysisReady 
+}: { 
+    symbol: string; 
+    marketItem: MarketData;
+    onAnalysisReady?: (analysis: any, currentPrice?: number | null) => void;
+}) {
+    // Fetch 30 days of forex data
+    const days = 30;
+    const { data: chartData, rawData, loading: chartLoading, currentPrice } = useForexChartData(symbol, days);
+    
+    // Calculate technical analysis from real-time data
+    const realTimeAnalysis = useMemo(() => {
+        if (!rawData || rawData.length === 0) {
+            return fallbackTechnicalAnalysis[symbol] || null;
+        }
+        
+        // Convert forex data to CoinGecko format for technical analysis
+        const chartDataForAnalysis: CoinGeckoChartDataPoint[] = rawData.map(point => ({
+            time: point.time,
+            price: point.price,
+            timestamp: point.timestamp,
+        }));
+        
+        // Use latest price from API data, or currentPrice from hook, or fallback to marketItem.price
+        const latestData = rawData[rawData.length - 1];
+        const price = latestData?.price || currentPrice || marketItem.price;
+        const dataDate = latestData ? new Date(latestData.timestamp) : new Date();
+        
+        return calculateTechnicalAnalysis(
+            chartDataForAnalysis,
+            symbol,
+            price,
+            dataDate,
+            marketItem.type // Pass type to handle formatting correctly
+        );
+    }, [rawData, symbol, currentPrice, marketItem.price, marketItem.type]);
+    
+    // Notify parent component when analysis is ready
+    useEffect(() => {
+        if (realTimeAnalysis && onAnalysisReady) {
+            // Pass both analysis and currentPrice so parent can update the price
+            const latestData = rawData && rawData.length > 0 ? rawData[rawData.length - 1] : null;
+            const priceToPass = latestData?.price || currentPrice || null;
+            onAnalysisReady(realTimeAnalysis, priceToPass);
+        }
+    }, [realTimeAnalysis, onAnalysisReady, currentPrice, rawData]);
+    
+    // Get data date range for display
+    const dataDateRange = useMemo(() => {
+        if (!rawData || rawData.length === 0) return null;
+        
+        const firstDate = new Date(rawData[0].timestamp);
+        const lastDate = new Date(rawData[rawData.length - 1].timestamp);
+        
+        return {
+            from: formatChartDate(firstDate),
+            to: formatChartDate(lastDate),
+        };
+    }, [rawData]);
+    
+    // Memoize coinGeckoData to prevent infinite re-renders
+    const memoizedCoinGeckoData = useMemo(() => {
+        if (!rawData) return undefined;
+        return rawData.map(p => ({
+            time: p.time,
+            price: p.price,
+            timestamp: p.timestamp,
+        }));
+    }, [rawData]);
+    
+    return (
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {days} Days Price Chart
+                </h3>
+                {dataDateRange && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="material-icons-outlined text-xs align-middle mr-1">schedule</span>
+                        Data: {dataDateRange.from.split(',')[0]} - {dataDateRange.to.split(',')[0]}
+                        <span className="ml-2 text-green-500">●</span> Live
+                    </div>
+                )}
+            </div>
+            {chartLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Loading chart...</p>
+                    </div>
+                </div>
+            ) : (
+                <MarketChart 
+                    marketData={[marketItem]} 
+                    selectedSymbol={symbol}
+                    coinGeckoData={memoizedCoinGeckoData}
+                    days={days}
+                />
+            )}
+        </div>
+    );
+}
+
+// Component to fetch and display stock chart data
+function StockChartWrapper({ 
+    symbol, 
+    marketItem, 
+    onAnalysisReady 
+}: { 
+    symbol: string; 
+    marketItem: MarketData;
+    onAnalysisReady?: (analysis: any, currentPrice?: number | null) => void;
+}) {
+    // Fetch 30 days of stock data
+    const days = 30;
+    const { data: chartData, rawData, loading: chartLoading, currentPrice } = useStockChartData(symbol, days);
+    
+    // Calculate technical analysis from real-time data
+    const realTimeAnalysis = useMemo(() => {
+        if (!rawData || rawData.length === 0) {
+            return fallbackTechnicalAnalysis[symbol] || null;
+        }
+        
+        // Convert stock data to CoinGecko format for technical analysis
+        const chartDataForAnalysis: CoinGeckoChartDataPoint[] = rawData.map(point => ({
+            time: point.time,
+            price: point.price,
+            timestamp: point.timestamp,
+        }));
+        
+        // Use latest price from API data, or currentPrice from hook, or fallback to marketItem.price
+        const latestData = rawData[rawData.length - 1];
+        const price = latestData?.price || currentPrice || marketItem.price;
+        const dataDate = latestData ? new Date(latestData.timestamp) : new Date();
+        
+        return calculateTechnicalAnalysis(
+            chartDataForAnalysis,
+            symbol,
+            price,
+            dataDate,
+            marketItem.type // Pass type to handle formatting correctly
+        );
+    }, [rawData, symbol, currentPrice, marketItem.price, marketItem.type]);
+    
+    // Notify parent component when analysis is ready
+    useEffect(() => {
+        if (realTimeAnalysis && onAnalysisReady) {
+            // Pass both analysis and currentPrice so parent can update the price
+            const latestData = rawData && rawData.length > 0 ? rawData[rawData.length - 1] : null;
+            const priceToPass = latestData?.price || currentPrice || null;
+            onAnalysisReady(realTimeAnalysis, priceToPass);
+        }
+    }, [realTimeAnalysis, onAnalysisReady, currentPrice, rawData]);
+    
+    // Get data date range for display
+    const dataDateRange = useMemo(() => {
+        if (!rawData || rawData.length === 0) return null;
+        
+        const firstDate = new Date(rawData[0].timestamp);
+        const lastDate = new Date(rawData[rawData.length - 1].timestamp);
+        
+        return {
+            from: formatChartDate(firstDate),
+            to: formatChartDate(lastDate),
+        };
+    }, [rawData]);
+    
+    // Memoize coinGeckoData to prevent infinite re-renders
+    const memoizedCoinGeckoData = useMemo(() => {
+        if (!rawData) return undefined;
+        return rawData.map(p => ({
+            time: p.time,
+            price: p.price,
+            timestamp: p.timestamp,
+        }));
+    }, [rawData]);
+    
+    return (
+        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    {days} Days Price Chart
+                </h3>
+                {dataDateRange && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="material-icons-outlined text-xs align-middle mr-1">schedule</span>
+                        Data: {dataDateRange.from.split(',')[0]} - {dataDateRange.to.split(',')[0]}
+                        <span className="ml-2 text-green-500">●</span> Live
+                    </div>
+                )}
+            </div>
+            {chartLoading ? (
+                <div className="h-64 flex items-center justify-center">
+                    <div className="text-center text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Loading chart...</p>
+                    </div>
+                </div>
+            ) : (
+                <MarketChart 
+                    marketData={[marketItem]} 
+                    selectedSymbol={symbol}
+                    coinGeckoData={memoizedCoinGeckoData}
+                    days={days}
+                />
+            )}
+        </div>
+    );
+}
+
+// Component to manage stock chart and real-time analysis
+function StockSectionWithAnalysis({ item }: { item: MarketData }) {
+    const [realTimeAnalysis, setRealTimeAnalysis] = useState<any | null>(null);
+    const [updatedMarketItem, setUpdatedMarketItem] = useState<MarketData>(item);
+    const fallbackAnalysis = fallbackTechnicalAnalysis[item.symbol];
+    
+    // Memoize callback to prevent infinite loops
+    const handleAnalysisReady = useCallback((analysis: any, currentPrice?: number | null) => {
+        setRealTimeAnalysis(analysis);
+        // Update marketItem price if we have real-time price from API
+        if (currentPrice !== null && currentPrice !== undefined) {
+            setUpdatedMarketItem(prev => ({
+                ...prev,
+                price: currentPrice
+            }));
+        }
+    }, []);
+    
+    return (
+        <>
+            <StockChartWrapper 
+                symbol={item.symbol} 
+                marketItem={item}
+                onAnalysisReady={handleAnalysisReady}
+            />
+            <div className="p-6">
+                {realTimeAnalysis ? (
+                    <TechnicalAnalysis 
+                        marketData={updatedMarketItem} 
+                        analysisData={realTimeAnalysis} 
+                    />
+                ) : (
+                    <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Calculating technical analysis...</p>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
+
+// Component to manage forex chart and real-time analysis
+function ForexSectionWithAnalysis({ item }: { item: MarketData }) {
+    const [realTimeAnalysis, setRealTimeAnalysis] = useState<any | null>(null);
+    const [updatedMarketItem, setUpdatedMarketItem] = useState<MarketData>(item);
+    const fallbackAnalysis = fallbackTechnicalAnalysis[item.symbol];
+    
+    // Memoize callback to prevent infinite loops
+    const handleAnalysisReady = useCallback((analysis: any, currentPrice?: number | null) => {
+        setRealTimeAnalysis(analysis);
+        // Update marketItem price if we have real-time price from API
+        if (currentPrice !== null && currentPrice !== undefined) {
+            setUpdatedMarketItem(prev => ({
+                ...prev,
+                price: currentPrice
+            }));
+        }
+    }, []);
+    
+    return (
+        <>
+            <ForexChartWrapper 
+                symbol={item.symbol} 
+                marketItem={item}
+                onAnalysisReady={handleAnalysisReady}
+            />
+            <div className="p-6">
+                {realTimeAnalysis ? (
+                    <TechnicalAnalysis 
+                        marketData={updatedMarketItem} 
+                        analysisData={realTimeAnalysis} 
+                    />
+                ) : (
+                    <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                        <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-primary mb-2"></div>
+                        <p className="text-sm">Calculating technical analysis...</p>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
 
 export interface MarketData {
     symbol: string;
@@ -37,6 +457,10 @@ export function MarketAnalysisContent({
     showMarketCap = false,
 }: MarketAnalysisContentProps) {
     const [searchTerm, setSearchTerm] = useState("");
+
+    const handleSidebarSearch = (term: string) => {
+        setSearchTerm(term);
+    };
 
     // Filter function
     const filterData = (data: MarketData[]) => {
@@ -208,8 +632,9 @@ export function MarketAnalysisContent({
 
                     {/* Individual Symbol Sections with Chart and Analysis */}
                     {filteredData.map((item) => {
-                        const analysis = technicalAnalysisData[item.symbol];
-                        if (!analysis) return null;
+                        const fallbackAnalysis = fallbackTechnicalAnalysis[item.symbol];
+                        
+                        if (!fallbackAnalysis && item.type !== "crypto") return null;
 
                         const getHeaderColor = () => {
                             if (item.type === "crypto") return "from-yellow-500 to-yellow-600";
@@ -257,18 +682,26 @@ export function MarketAnalysisContent({
                                     </div>
                                 </div>
 
-                                {/* Chart */}
-                                <div className="p-6 border-b border-gray-100 dark:border-gray-700">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                                        24h Price Chart
-                                    </h3>
-                                    <MarketChart marketData={[item]} selectedSymbol={item.symbol} />
-                                </div>
-
-                                {/* Technical Analysis */}
-                                <div className="p-6">
-                                    <TechnicalAnalysis marketData={item} analysisData={analysis} />
-                                </div>
+                                {/* Chart and Technical Analysis */}
+                                {item.type === "crypto" ? (
+                                    <CryptoSectionWithAnalysis item={item} />
+                                ) : item.type === "forex" ? (
+                                    <ForexSectionWithAnalysis item={item} />
+                                ) : (
+                                    <>
+                                        <div className="p-6 border-b border-gray-100 dark:border-gray-700">
+                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+                                                24h Price Chart
+                                            </h3>
+                                            <MarketChart marketData={[item]} selectedSymbol={item.symbol} />
+                                        </div>
+                                        {fallbackAnalysis && (
+                                            <div className="p-6">
+                                                <TechnicalAnalysis marketData={item} analysisData={fallbackAnalysis} />
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </div>
                         );
                     })}
