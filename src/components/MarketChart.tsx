@@ -222,9 +222,9 @@ export function MarketChart({ marketData, selectedSymbol, coinGeckoData, days = 
                             color: '#374151',
                         }}
                         labelStyle={{ fontWeight: 'bold', color: '#374151' }}
-                        formatter={(value: number | undefined, name: string) => {
+                        formatter={(value: number | undefined, name: string | undefined) => {
                             if (value === undefined || value === null) {
-                                return ['N/A', name];
+                                return ['N/A', name || ''];
                             }
                             // Format with appropriate decimal places based on value
                             let formattedValue: string;
@@ -235,7 +235,7 @@ export function MarketChart({ marketData, selectedSymbol, coinGeckoData, days = 
                             } else {
                                 formattedValue = `$${value.toLocaleString('en-US', { minimumFractionDigits: 4, maximumFractionDigits: 6 })}`;
                             }
-                            return [formattedValue, name];
+                            return [formattedValue, name || ''];
                         }}
                     />
                     <Legend 
